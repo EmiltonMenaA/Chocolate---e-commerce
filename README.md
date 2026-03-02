@@ -90,11 +90,14 @@ src/
 
 ## Derechos de autor 
 
-Codigo hecho por 
-EMILTON MENA ACEVEDO
-MARIANA HINCAPIE HENAO 
-Fabián Andrés Buriticá Cardozo
- 
+Este código ha sido desarrollado por:
+
+- **Emilton Mena Acevedo**  
+- **Mariana Hincapié Henao**  
+- **Fabián Andrés Buriticá Cardozo**
+
+Todos los derechos reservados ©
+
  
 
 
