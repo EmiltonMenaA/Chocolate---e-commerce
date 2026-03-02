@@ -88,10 +88,13 @@ src/
 5. **Base de Datos**: Configurar base de datos para productos y órdenes
 6. **Testing**: Agregar pruebas unitarias e integración
 
-## Contribución
+## Derechos de autor 
 
-Este proyecto es una estructura base. Siéntete libre de personalizarlo según tus necesidades.
+Codigo hecho por 
+EMILTON MENA ACEVEDO
+MARIANA HINCAPIE HENAO 
+Fabián Andrés Buriticá Cardozo
+ 
+ 
 
-## Licencia
 
-MIT
