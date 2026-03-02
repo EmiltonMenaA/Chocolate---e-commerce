@@ -4,16 +4,14 @@ Un proyecto de e-commerce moderno construido con React, TypeScript, Tailwind CSS
 
 ## Características
 
-- ✨ Interfaz moderna y responsiva
-- 🎨 Tema oscuro/claro
-- 🛍️ Catálogo de productos con filtros
-- 🛒 Carrito de compras funcional
-- 💳 Flujo de checkout multipasos
-- 👤 Autenticación de usuarios
-- 📊 Dashboard de cliente
-- 🏪 Dashboard de vendedor
-- 🧠 Cuestionario de tipo de piel personalizado
-- 📱 Diseño completamente responsivo
+-  Interfaz moderna y responsiva
+-  Tema oscuro/claro
+-  Catálogo de productos con filtros
+-  Carrito de compras funcional
+-  Flujo de checkout multipasos
+-  Autenticación de usuarios
+-  Cuestionario de tipo de piel personalizado
+-  Diseño completamente responsivo
 
 ## Tecnologías
 
