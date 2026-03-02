@@ -88,7 +88,7 @@ src/
 5. **Base de Datos**: Configurar base de datos para productos y órdenes
 6. **Testing**: Agregar pruebas unitarias e integración
 
-## Derechos de autor 
+##  Derechos de autor
 
 Este código ha sido desarrollado por:
 
