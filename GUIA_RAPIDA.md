@@ -1,6 +1,6 @@
 # Guía de Inicio Rápido - Proyecto React Chocolat
 
-## 🚀 Comenzar a Desarrollar
+##  Comenzar a Desarrollar
 
 Para iniciar el servidor de desarrollo:
 
@@ -8,9 +8,9 @@ Para iniciar el servidor de desarrollo:
 npm run dev
 ```
 
-Esto abrirá automáticamente http://localhost:3000 en tu navegador.
+Esto abrirá automáticamente http://localhost:3000 
 
-## 📂 Estructura del Proyecto
+##  Estructura del Proyecto
 
 ### `/src/pages/` - Páginas Principales
 - **HomePage.tsx** - Página de inicio con productos destacados
@@ -31,7 +31,7 @@ Esto abrirá automáticamente http://localhost:3000 en tu navegador.
 - **Header.tsx** - Navegación superior
 - **Footer.tsx** - Pie de página
 
-## 🎨 Personalización
+##  Personalización
 
 ### Colores
 Los colores están definidos en `tailwind.config.js`. Edita el objeto `colors` para cambiar:
@@ -111,28 +111,19 @@ Usar bibliotecas como `react-hook-form` y `zod`:
 npm install react-hook-form zod @hookform/resolvers
 ```
 
-## 📦 Construir para Producción
+##  Construir para Producción
 
 ```bash
 npm run build
 ```
 
-Esto genera una carpeta `/dist/` optimizada lista para desplegar.
 
-## 🐛 Debugging
+
+##  Debugging
 
 - Usa las DevTools de React en el navegador
 - Inspecciona componentes con React Dev Tools
 - Revisa la consola del navegador (F12)
 
-## 💡 Tips
 
-- Los componentes usan **Tailwind CSS**, todas las clases están en el HTML
-- Los iconos vienen de **Material Symbols Outlined**
-- El tema oscuro se controla con la clase `dark:` en Tailwind
-- Las rutas están configuradas en `App.tsx`
 
-## 📞 Soporte
-
-Para preguntas sobre Tailwind, accede a: https://tailwindcss.com
-Para preguntas sobre React Router: https://reactrouter.com

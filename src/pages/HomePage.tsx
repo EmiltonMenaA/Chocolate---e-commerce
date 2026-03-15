@@ -1,6 +1,30 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { getBackendHealth } from '../services/api'
 
 export default function HomePage() {
+  const [backendStatus, setBackendStatus] = useState<'loading' | 'online' | 'offline'>('loading')
+
+  useEffect(() => {
+    let active = true
+
+    getBackendHealth()
+      .then(() => {
+        if (active) {
+          setBackendStatus('online')
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setBackendStatus('offline')
+        }
+      })
+
+    return () => {
+      active = false
+    }
+  }, [])
+
   const featuredProducts = [
     {
       id: 1,
@@ -37,6 +61,21 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="px-6 lg:px-20 py-20">
         <div className="max-w-7xl mx-auto">
+          <div className="mb-6">
+            <span
+              className={`inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold ${
+                backendStatus === 'online'
+                  ? 'bg-green-100 text-green-700'
+                  : backendStatus === 'offline'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-yellow-100 text-yellow-700'
+              }`}
+            >
+              {backendStatus === 'online' && 'Backend Django conectado'}
+              {backendStatus === 'offline' && 'Backend Django no disponible'}
+              {backendStatus === 'loading' && 'Verificando conexión con Django...'}
+            </span>
+          </div>
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-5xl lg:text-6xl font-bold text-cocoa-900 dark:text-white mb-6 leading-tight">
