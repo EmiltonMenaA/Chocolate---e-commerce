@@ -1,9 +1,14 @@
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useState } from 'react'
+
+import CartFeedbackToast from '../components/CartFeedbackToast'
+import { useCart } from '../context/CartContext'
 
 export default function ProductDetail() {
   const { id } = useParams()
   const [quantity, setQuantity] = useState(1)
+  const [showCartFeedback, setShowCartFeedback] = useState(false)
+  const { addToCart } = useCart()
 
   // Demo product
   const product = {
@@ -29,8 +34,36 @@ export default function ProductDetail() {
     ]
   }
 
+  useEffect(() => {
+    if (!showCartFeedback) {
+      return undefined
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setShowCartFeedback(false)
+    }, 1800)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [showCartFeedback])
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: product.id ?? product.name,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity,
+    })
+    setShowCartFeedback(true)
+  }
+
   return (
     <div className="px-6 lg:px-20 py-12">
+      <CartFeedbackToast
+        visible={showCartFeedback}
+        message={`${quantity} unidad${quantity > 1 ? 'es' : ''} de ${product.name}`}
+      />
+
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Product Image */}
@@ -89,8 +122,15 @@ export default function ProductDetail() {
                   +
                 </button>
               </div>
-              <button className="flex-1 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-colors">
-                Añadir al Carrito
+              <button
+                onClick={handleAddToCart}
+                className={`flex-1 py-3 rounded-lg font-semibold text-white transition-all ${
+                  showCartFeedback
+                    ? 'bg-emerald-600 hover:bg-emerald-700 cart-button-pop'
+                    : 'bg-primary hover:bg-red-600'
+                }`}
+              >
+                {showCartFeedback ? 'Agregado' : 'Añadir al Carrito'}
               </button>
             </div>
 

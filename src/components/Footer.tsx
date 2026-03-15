@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear()
+
   return (
-    <footer className="bg-cocoa-900 dark:bg-cocoa-900 text-white py-12 mt-20">
+    <footer className="bg-cocoa-900 text-white py-12 mt-20 border-t-4 border-primary/60">
       <div className="max-w-7xl mx-auto px-6 lg:px-20">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
@@ -15,6 +17,9 @@ export default function Footer() {
             </div>
             <p className="text-slate-400">
               Productos naturales de lujo para tu cuidado de la piel.
+            </p>
+            <p className="text-slate-500 mt-3 text-sm">
+              Hecho por el equipo Chocolate E-commerce.
             </p>
           </div>
 
@@ -30,6 +35,9 @@ export default function Footer() {
               </Link>
               <Link to="/about" className="text-slate-400 hover:text-white transition-colors">
                 Acerca de
+              </Link>
+              <Link to="/register" className="text-slate-400 hover:text-white transition-colors">
+                Crear cuenta
               </Link>
             </div>
           </div>
@@ -63,12 +71,21 @@ export default function Footer() {
               <a href="#" className="text-slate-400 hover:text-white transition-colors">
                 Cookies
               </a>
+              <a
+                href="https://github.com/EmiltonMenaA/Chocolate---e-commerce"
+                target="_blank"
+                rel="noreferrer"
+                className="text-slate-400 hover:text-white transition-colors"
+              >
+                Repositorio GitHub
+              </a>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-cocoa-800 pt-8 text-center text-slate-400">
-          <p>&copy; 2026 Chocolat. Todos los derechos reservados.</p>
+        <div className="border-t border-cocoa-800 pt-8 text-center text-slate-400 space-y-2">
+          <p>&copy; {currentYear} Chocolat. Todos los derechos reservados.</p>
+          <p className="text-xs text-slate-500">Version Web: React + Vite | Backend: Django 4</p>
         </div>
       </div>
     </footer>

@@ -1,5 +1,15 @@
-from django.http import JsonResponse
+from django.http import HttpRequest, JsonResponse
 
 
-def health(request):
-	return JsonResponse({'status': 'ok', 'framework': 'django', 'version': '4.2.13'})
+def health(request: HttpRequest) -> JsonResponse:
+    return JsonResponse(
+        {
+            'success': True,
+            'data': {
+                'status': 'ok',
+                'framework': 'django',
+                'version': '4.2.13',
+            },
+        },
+        status=200,
+    )

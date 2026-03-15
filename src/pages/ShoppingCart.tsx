@@ -1,37 +1,11 @@
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+
+import { useCart } from '../context/CartContext'
 
 export default function ShoppingCart() {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Serum Facial Premium",
-      price: 49.99,
-      quantity: 2,
-      image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=200&h=200&fit=crop"
-    },
-    {
-      id: 2,
-      name: "Crema Hidratante",
-      price: 39.99,
-      quantity: 1,
-      image: "https://images.unsplash.com/photo-1521391573892-e44906baee46?w=200&h=200&fit=crop"
-    }
-  ])
-
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const { cartItems, subtotal, updateQuantity, removeFromCart, clearCart } = useCart()
   const tax = subtotal * 0.08
   const total = subtotal + tax
-
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      setCartItems(items => items.filter(item => item.id !== id))
-    } else {
-      setCartItems(items =>
-        items.map(item => item.id === id ? { ...item, quantity: newQuantity } : item)
-      )
-    }
-  }
 
   if (cartItems.length === 0) {
     return (
@@ -97,7 +71,7 @@ export default function ShoppingCart() {
                         +
                       </button>
                       <button
-                        onClick={() => updateQuantity(item.id, 0)}
+                        onClick={() => removeFromCart(item.id)}
                         className="ml-auto text-red-600 hover:text-red-700 font-semibold text-sm"
                       >
                         Eliminar
@@ -140,6 +114,13 @@ export default function ShoppingCart() {
                 <span>Total</span>
                 <span>${total.toFixed(2)}</span>
               </div>
+
+              <button
+                onClick={clearCart}
+                className="mb-3 w-full py-3 border border-cocoa-300 text-cocoa-800 rounded-lg font-semibold hover:bg-cocoa-100 transition-colors"
+              >
+                Vaciar carrito
+              </button>
 
               <Link
                 to="/checkout"

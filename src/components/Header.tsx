@@ -1,10 +1,13 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 
+import { useCart } from '../context/CartContext'
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const location = useLocation()
+  const { cartCount } = useCart()
 
   const isActive = (path: string) => location.pathname === path
 
@@ -80,13 +83,18 @@ export default function Header() {
           </Link>
           <Link 
             to="/cart" 
-            className={`font-medium transition-colors ${
+            className={`relative font-medium transition-colors ${
               isActive('/cart') 
                 ? 'text-cafe' 
                 : 'text-cocoa-700 dark:text-slate-300 hover:text-cafe'
             }`}
           >
             Carrito
+            {cartCount > 0 && (
+              <span className="ml-2 inline-flex min-w-6 items-center justify-center rounded-full bg-emerald-500 px-2 py-0.5 text-xs font-bold text-white">
+                {cartCount}
+              </span>
+            )}
           </Link>
         </nav>
 
@@ -129,6 +137,11 @@ export default function Header() {
           </Link>
           <Link to="/cart" className="text-cocoa-700 dark:text-slate-300 font-medium">
             Carrito
+            {cartCount > 0 && (
+              <span className="ml-2 inline-flex min-w-6 items-center justify-center rounded-full bg-emerald-500 px-2 py-0.5 text-xs font-bold text-white">
+                {cartCount}
+              </span>
+            )}
           </Link>
           <Link to="/login" className="text-cocoa-700 dark:text-slate-300 font-medium">
             Iniciar sesión

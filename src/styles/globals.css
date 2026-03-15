@@ -5,3 +5,28 @@
 * {
   @apply transition-colors duration-200;
 }
+
+@keyframes cart-toast-enter {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(0.96);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translate3d(0, -2px, 0) scale(1.01);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.cart-toast-enter {
+  animation: cart-toast-enter 240ms ease-out;
+}
+
+.cart-button-pop {
+  animation: cart-toast-enter 220ms ease-out;
+}

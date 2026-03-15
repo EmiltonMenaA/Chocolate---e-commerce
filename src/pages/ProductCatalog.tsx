@@ -1,9 +1,15 @@
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+import CartFeedbackToast from '../components/CartFeedbackToast'
+import { useCart } from '../context/CartContext'
 
 export default function ProductCatalog() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [priceRange, setPriceRange] = useState([0, 100])
+  const [addedProductId, setAddedProductId] = useState<number | null>(null)
+  const [addedProductName, setAddedProductName] = useState('')
+  const { addToCart } = useCart()
 
   const products = [
     {
@@ -71,8 +77,45 @@ export default function ProductCatalog() {
     return matchesCategory && matchesPrice
   })
 
+  useEffect(() => {
+    if (addedProductId === null) {
+      return undefined
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setAddedProductId(null)
+      setAddedProductName('')
+    }, 1800)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [addedProductId])
+
+  const handleAddToCart = (event: React.MouseEvent<HTMLButtonElement>, productId: number, productName: string) => {
+    event.preventDefault()
+    event.stopPropagation()
+    const product = products.find((item) => item.id === productId)
+    if (!product) {
+      return
+    }
+
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity: 1,
+    })
+    setAddedProductId(productId)
+    setAddedProductName(productName)
+  }
+
   return (
     <div className="px-6 lg:px-20 py-12">
+      <CartFeedbackToast
+        visible={addedProductId !== null}
+        message={addedProductName}
+      />
+
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold text-cocoa-900 dark:text-white mb-8">
           Catálogo de Productos
@@ -179,8 +222,15 @@ export default function ProductCatalog() {
                         </span>
                       </div>
                     </div>
-                    <button className="w-full py-2 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-colors">
-                      Añadir al Carrito
+                    <button
+                      onClick={(event) => handleAddToCart(event, product.id, product.name)}
+                      className={`w-full py-2 rounded-lg font-semibold text-white transition-all ${
+                        addedProductId === product.id
+                          ? 'bg-emerald-600 hover:bg-emerald-700 cart-button-pop'
+                          : 'bg-primary hover:bg-red-600'
+                      }`}
+                    >
+                      {addedProductId === product.id ? 'Agregado' : 'Añadir al Carrito'}
                     </button>
                   </div>
                 </Link>
