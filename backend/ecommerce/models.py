@@ -17,8 +17,16 @@ class Producto(models.Model):
     )
     stock = models.PositiveIntegerField()
     marca = models.CharField(max_length=120)
-    imagen = models.ImageField(upload_to='products/')
+    categoria = models.CharField(max_length=100, blank=True, default='')
+    imagen = models.ImageField(upload_to='products/', blank=True, null=True)
     activo = models.BooleanField(default=True)
+    tienda = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='productos',
+    )
 
     def __str__(self) -> str:
         return f'{self.nombre} - {self.marca}'
@@ -103,3 +111,109 @@ class ItemCarrito(models.Model):
     @property
     def subtotal(self) -> Decimal:
         return Decimal(self.producto.precio) * self.cantidad
+
+
+class Pedido(models.Model):
+    class Estado(models.TextChoices):
+        PENDIENTE = 'pendiente', 'Pendiente'
+        CONFIRMADO = 'confirmado', 'Confirmado'
+        ENVIADO = 'enviado', 'Enviado'
+        ENTREGADO = 'entregado', 'Entregado'
+        CANCELADO = 'cancelado', 'Cancelado'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='pedidos',
+    )
+    fecha = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField(
+        max_length=20,
+        choices=Estado.choices,
+        default=Estado.PENDIENTE,
+    )
+    total = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('0.00'),
+    )
+
+    def __str__(self) -> str:
+        return f'Pedido {self.id} — {self.usuario} ({self.get_estado_display()})'
+
+    def confirmar(self) -> None:
+        if self.estado != self.Estado.PENDIENTE:
+            raise ValueError('Solo se puede confirmar un pedido en estado Pendiente')
+        self.estado = self.Estado.CONFIRMADO
+        self.save(update_fields=['estado'])
+
+    def cancelar(self) -> None:
+        if self.estado in (self.Estado.ENTREGADO, self.Estado.CANCELADO):
+            raise ValueError('No se puede cancelar un pedido ya entregado o cancelado')
+        self.estado = self.Estado.CANCELADO
+        self.save(update_fields=['estado'])
+
+    def calcular_total(self) -> Decimal:
+        total = sum(
+            (detalle.subtotal for detalle in self.detalles.select_related('producto').all()),
+            Decimal('0.00'),
+        )
+        self.total = total
+        self.save(update_fields=['total'])
+        return total
+
+
+class DetallePedido(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    pedido = models.ForeignKey(
+        Pedido,
+        on_delete=models.CASCADE,
+        related_name='detalles',
+    )
+    producto = models.ForeignKey(
+        Producto,
+        on_delete=models.PROTECT,
+        related_name='detalles_pedido',
+    )
+    cantidad = models.PositiveIntegerField()
+    # Snapshot del precio al momento de la compra
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self) -> str:
+        return f'{self.cantidad} x {self.producto.nombre} (${self.precio_unitario})'
+
+    @property
+    def subtotal(self) -> Decimal:
+        return Decimal(self.precio_unitario) * self.cantidad
+
+
+class PerfilUsuario(models.Model):
+    class Rol(models.TextChoices):
+        CLIENTE = 'cliente', 'Cliente'
+        TIENDA = 'tienda', 'Tienda'
+        ADMIN = 'admin', 'Administrador'
+
+    usuario = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='perfil',
+    )
+    rol = models.CharField(
+        max_length=10,
+        choices=Rol.choices,
+        default=Rol.CLIENTE,
+    )
+    nombre_tienda = models.CharField(max_length=200, blank=True)
+    telefono = models.CharField(max_length=20, blank=True)
+
+    def __str__(self) -> str:
+        return f'{self.usuario.email} ({self.get_rol_display()})'
+
+    @property
+    def es_tienda(self) -> bool:
+        return self.rol == self.Rol.TIENDA
+
+    @property
+    def es_admin(self) -> bool:
+        return self.rol == self.Rol.ADMIN

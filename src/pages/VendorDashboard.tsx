@@ -1,153 +1,222 @@
+﻿import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import axios from 'axios'
+import { useAuth } from '../context/AuthContext'
+
+type Producto = {
+  id: string
+  nombre: string
+  precio: string
+  stock: number
+  activo: boolean
+  imagen: string | null
+  categoria: string
+}
 
 export default function VendorDashboard() {
-  const products = [
-    {
-      id: 1,
-      name: "Serum Facial Premium",
-      price: 49.99,
-      sales: 145,
-      revenue: "$7248.55",
-      status: "Activo"
-    },
-    {
-      id: 2,
-      name: "Crema Hidratante",
-      price: 39.99,
-      sales: 89,
-      revenue: "$3559.11",
-      status: "Activo"
-    },
-    {
-      id: 3,
-      name: "Máscara Facial",
-      price: 34.99,
-      sales: 62,
-      revenue: "$2169.38",
-      status: "Pausado"
+  const { accessToken, user } = useAuth()
+  const [productos, setProductos] = useState<Producto[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  const fetchProductos = async () => {
+    try {
+      const { data } = await axios.get('/api/panel/productos/', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      setProductos(data)
+    } catch {
+      setError('No se pudieron cargar los productos.')
+    } finally {
+      setIsLoading(false)
     }
-  ]
+  }
+
+  useEffect(() => {
+    if (accessToken) fetchProductos()
+  }, [accessToken])
+
+  const handleToggleActivo = async (producto: Producto) => {
+    try {
+      const form = new FormData()
+      form.append('activo', (!producto.activo).toString())
+      await axios.patch(`/api/productos/${producto.id}/`, form, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      setProductos(prev =>
+        prev.map(p => (p.id === producto.id ? { ...p, activo: !p.activo } : p))
+      )
+    } catch {
+      alert('No se pudo actualizar el estado del producto.')
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Esta siguro de eliminar este producto?')) return
+    setDeletingId(id)
+    try {
+      await axios.delete(`/api/productos/${id}/`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      setProductos(prev => prev.filter(p => p.id !== id))
+    } catch {
+      alert('No se pudo eliminar el producto.')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  const totalProductos = productos.length
+  const productosActivos = productos.filter(p => p.activo).length
+  const totalStock = productos.reduce((sum, p) => sum + p.stock, 0)
 
   return (
-    <div className="px-6 lg:px-20 py-12">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-cocoa-900 dark:text-white">
-            Panel del Vendedor
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-cocoa-900 dark:text-white">
+            {user?.nombre_tienda || user?.nombre}
           </h1>
-          <Link
-            to="/vendor-dashboard/add-product"
-            className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-colors"
-          >
-            Añadir Producto
+          <p className="text-cocoa-500 dark:text-cocoa-400 mt-1">Resumen de tu tienda</p>
+        </div>
+        <Link
+          to="/panel/productos/nuevo"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-cafe text-white rounded-xl font-semibold hover:bg-amber-800 transition-colors"
+        >
+          <span className="material-symbols-outlined">add</span>
+          Agregar Producto
+        </Link>
+      </div>
+
+      <div className="grid sm:grid-cols-3 gap-6">
+        <div className="bg-white dark:bg-cocoa-800 rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+              <span className="material-symbols-outlined text-blue-600 text-2xl">inventory_2</span>
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-cocoa-900 dark:text-white">{totalProductos}</p>
+              <p className="text-sm text-cocoa-500">Productos totales</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white dark:bg-cocoa-800 rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+              <span className="material-symbols-outlined text-green-600 text-2xl">check_circle</span>
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-cocoa-900 dark:text-white">{productosActivos}</p>
+              <p className="text-sm text-cocoa-500">Productos activos</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white dark:bg-cocoa-800 rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+              <span className="material-symbols-outlined text-amber-600 text-2xl">warehouse</span>
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-cocoa-900 dark:text-white">{totalStock}</p>
+              <p className="text-sm text-cocoa-500">Unidades en stock</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-cocoa-800 rounded-2xl shadow-sm overflow-hidden">
+        <div className="px-6 py-5 border-b border-cocoa-100 dark:border-cocoa-700 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-cocoa-900 dark:text-white">Mis Productos</h2>
+          <Link to="/panel/productos/nuevo" className="text-sm text-cafe hover:text-amber-600 font-semibold flex items-center gap-1">
+            <span className="material-symbols-outlined text-base">add</span>
+            Nuevo
           </Link>
         </div>
 
-        {/* Stats */}
-        <div className="grid md:grid-cols-4 gap-6 mb-12">
-          <div className="bg-white dark:bg-cocoa-800 rounded-xl p-6">
-            <span className="material-symbols-outlined text-4xl text-primary mb-2 block">
-              trending_up
-            </span>
-            <p className="text-3xl font-bold text-cocoa-900 dark:text-white">$12,977.04</p>
-            <p className="text-cocoa-700 dark:text-slate-300 text-sm">Ingresos Totales</p>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16 text-cocoa-400">
+            <span className="material-symbols-outlined animate-spin text-3xl mr-2">progress_activity</span>
+            Cargando...
           </div>
-
-          <div className="bg-white dark:bg-cocoa-800 rounded-xl p-6">
-            <span className="material-symbols-outlined text-4xl text-green-500 mb-2 block">
-              inventory_2
-            </span>
-            <p className="text-3xl font-bold text-cocoa-900 dark:text-white">296</p>
-            <p className="text-cocoa-700 dark:text-slate-300 text-sm">Ventas Totales</p>
+        ) : error ? (
+          <div className="p-6 text-red-500">{error}</div>
+        ) : productos.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-cocoa-400">
+            <span className="material-symbols-outlined text-5xl mb-3">inventory_2</span>
+            <p className="font-semibold text-lg">Sin productos aun</p>
+            <Link to="/panel/productos/nuevo" className="mt-4 px-6 py-2 bg-cafe text-white rounded-xl text-sm font-semibold hover:bg-amber-800 transition-colors">
+              Agregar producto
+            </Link>
           </div>
-
-          <div className="bg-white dark:bg-cocoa-800 rounded-xl p-6">
-            <span className="material-symbols-outlined text-4xl text-blue-500 mb-2 block">
-              shopping_bag
-            </span>
-            <p className="text-3xl font-bold text-cocoa-900 dark:text-white">3</p>
-            <p className="text-cocoa-700 dark:text-slate-300 text-sm">Productos</p>
-          </div>
-
-          <div className="bg-white dark:bg-cocoa-800 rounded-xl p-6">
-            <span className="material-symbols-outlined text-4xl text-yellow-500 mb-2 block">
-              star
-            </span>
-            <p className="text-3xl font-bold text-cocoa-900 dark:text-white">4.8</p>
-            <p className="text-cocoa-700 dark:text-slate-300 text-sm">Calificación</p>
-          </div>
-        </div>
-
-        {/* Products Table */}
-        <div className="bg-white dark:bg-cocoa-800 rounded-xl overflow-hidden">
-          <div className="p-6 border-b border-cocoa-200 dark:border-cocoa-700">
-            <h3 className="text-2xl font-bold text-cocoa-900 dark:text-white">
-              Mis Productos
-            </h3>
-          </div>
-
+        ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-cocoa-200 dark:border-cocoa-700 bg-cocoa-50 dark:bg-cocoa-700">
-                  <th className="px-6 py-3 text-left font-semibold text-cocoa-900 dark:text-white">
-                    Nombre del Producto
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-cocoa-900 dark:text-white">
-                    Precio
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-cocoa-900 dark:text-white">
-                    Ventas
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-cocoa-900 dark:text-white">
-                    Ingresos
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-cocoa-900 dark:text-white">
-                    Estado
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-cocoa-900 dark:text-white">
-                    Acciones
-                  </th>
+                <tr className="bg-cocoa-50 dark:bg-cocoa-700/50 text-left text-xs font-bold uppercase tracking-wider text-cocoa-500">
+                  <th className="px-6 py-4">Producto</th>
+                  <th className="px-6 py-4">Precio</th>
+                  <th className="px-6 py-4">Stock</th>
+                  <th className="px-6 py-4">Estado</th>
+                  <th className="px-6 py-4">Acciones</th>
                 </tr>
               </thead>
-              <tbody>
-                {products.map(product => (
-                  <tr key={product.id} className="border-b border-cocoa-200 dark:border-cocoa-700 hover:bg-cocoa-50 dark:hover:bg-cocoa-700">
-                    <td className="px-6 py-4 font-semibold text-cocoa-900 dark:text-white">
-                      {product.name}
+              <tbody className="divide-y divide-cocoa-100 dark:divide-cocoa-700">
+                {productos.map(producto => (
+                  <tr key={producto.id} className="hover:bg-cocoa-50 dark:hover:bg-cocoa-700/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        {producto.imagen ? (
+                          <img src={producto.imagen} alt={producto.nombre} className="w-10 h-10 rounded-lg object-cover bg-cocoa-100" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-cocoa-100 dark:bg-cocoa-700 flex items-center justify-center">
+                            <span className="material-symbols-outlined text-cocoa-400 text-base">image</span>
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-semibold text-cocoa-900 dark:text-white text-sm">{producto.nombre}</p>
+                          {producto.categoria && <p className="text-xs text-cocoa-400">{producto.categoria}</p>}
+                        </div>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-cocoa-700 dark:text-slate-300">
-                      ${product.price}
-                    </td>
-                    <td className="px-6 py-4 text-cocoa-700 dark:text-slate-300">
-                      {product.sales}
-                    </td>
-                    <td className="px-6 py-4 font-bold text-primary">
-                      {product.revenue}
+                    <td className="px-6 py-4 font-bold text-cocoa-900 dark:text-white">
+                      ${Number(producto.precio).toFixed(2)}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        product.status === "Activo"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}>
-                        {product.status}
+                      <span className={producto.stock < 5 ? 'text-red-500 font-semibold' : 'text-cocoa-700 dark:text-slate-300'}>
+                        {producto.stock}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <button className="text-primary hover:text-red-600 font-semibold text-sm mr-4">
-                        Editar
+                      <button
+                        onClick={() => handleToggleActivo(producto)}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-colors ${producto.activo ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-cocoa-100 text-cocoa-500 hover:bg-cocoa-200'}`}
+                      >
+                        <span className="material-symbols-outlined text-xs">{producto.activo ? 'check_circle' : 'cancel'}</span>
+                        {producto.activo ? 'Activo' : 'Pausado'}
                       </button>
-                      <button className="text-red-600 hover:text-red-700 font-semibold text-sm">
-                        Eliminar
-                      </button>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <Link to={`/panel/productos/${producto.id}/editar`} className="text-cafe hover:text-amber-600 text-sm font-semibold flex items-center gap-1">
+                          <span className="material-symbols-outlined text-sm">edit</span>Editar
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(producto.id)}
+                          disabled={deletingId === producto.id}
+                          className="text-red-500 hover:text-red-700 text-sm font-semibold flex items-center gap-1 disabled:opacity-50"
+                        >
+                          <span className="material-symbols-outlined text-sm">delete</span>
+                          {deletingId === producto.id ? 'Eliminando...' : 'Eliminar'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

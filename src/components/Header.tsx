@@ -1,22 +1,31 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
 import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [showUserMenu, setShowUserMenu] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
   const { cartCount } = useCart()
+  const { user, isAuthenticated, logout } = useAuth()
 
   const isActive = (path: string) => location.pathname === path
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      // TODO: Implementar búsqueda
       console.log('Buscando:', searchQuery)
     }
+  }
+
+  const handleLogout = async () => {
+    setShowUserMenu(false)
+    await logout()
+    navigate('/')
   }
 
   return (
@@ -100,18 +109,60 @@ export default function Header() {
 
         {/* CTA Buttons */}
         <div className="hidden lg:flex items-center gap-4">
-          <Link 
-            to="/login" 
-            className="px-6 py-2 text-cocoa-900 dark:text-white font-medium hover:text-cafe transition-colors"
-          >
-            Iniciar sesión
-          </Link>
-          <Link 
-            to="/register" 
-            className="px-6 py-2 bg-cafe text-white rounded-lg font-medium hover:bg-amber-800 transition-colors"
-          >
-            Registrarse
-          </Link>
+          {isAuthenticated && user ? (
+            <div className="relative">
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-cocoa-100 dark:hover:bg-cocoa-800 transition-colors"
+              >
+                <div className="w-8 h-8 rounded-full bg-cafe flex items-center justify-center text-white font-bold text-sm">
+                  {user.nombre.charAt(0).toUpperCase()}
+                </div>
+                <span className="text-cocoa-900 dark:text-white font-medium text-sm">
+                  {user.nombre.split(' ')[0]}
+                </span>
+                <span className="material-symbols-outlined text-sm text-cocoa-400">expand_more</span>
+              </button>
+              {showUserMenu && (
+                <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-cocoa-800 rounded-xl shadow-xl border border-cocoa-100 dark:border-cocoa-700 py-2 z-50">
+                  <div className="px-4 py-2 border-b border-cocoa-100 dark:border-cocoa-700">
+                    <p className="text-sm font-semibold text-cocoa-900 dark:text-white">{user.nombre}</p>
+                    <p className="text-xs text-cocoa-400">{user.email}</p>
+                  </div>
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setShowUserMenu(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-cocoa-700 dark:text-slate-300 hover:bg-cocoa-50 dark:hover:bg-cocoa-700 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-base">person</span>
+                    Mi cuenta
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-base">logout</span>
+                    Cerrar sesión
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="px-6 py-2 text-cocoa-900 dark:text-white font-medium hover:text-cafe transition-colors"
+              >
+                Iniciar sesión
+              </Link>
+              <Link
+                to="/register"
+                className="px-6 py-2 bg-cafe text-white rounded-lg font-medium hover:bg-amber-800 transition-colors"
+              >
+                Registrarse
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -146,9 +197,19 @@ export default function Header() {
           <Link to="/login" className="text-cocoa-700 dark:text-slate-300 font-medium">
             Iniciar sesión
           </Link>
-          <Link to="/register" className="bg-cafe text-white px-4 py-2 rounded-lg font-medium">
-            Registrarse
-          </Link>
+          {!isAuthenticated && (
+            <Link to="/register" className="bg-cafe text-white px-4 py-2 rounded-lg font-medium">
+              Registrarse
+            </Link>
+          )}
+          {isAuthenticated && (
+            <button
+              onClick={handleLogout}
+              className="text-red-400 font-medium text-sm"
+            >
+              Cerrar sesión
+            </button>
+          )}
         </nav>
       )}
     </header>

@@ -5,7 +5,7 @@ from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Carrito, ItemCarrito, Producto
+from .models import Carrito, DetallePedido, ItemCarrito, Pedido, Producto
 
 
 class HealthEndpointTests(TestCase):
@@ -172,3 +172,94 @@ class ItemCarritoModelTests(TestCase):
                 producto=self.producto,
                 cantidad=2,
             )
+
+
+class PedidoModelTests(TestCase):
+    def setUp(self) -> None:
+        user_model = get_user_model()
+        self.usuario = user_model.objects.create_user(
+            username='comprador1',
+            email='comprador1@example.com',
+            password='Secret123!',
+        )
+        self.producto = Producto.objects.create(
+            nombre='Crema Cacao Noir',
+            descripcion='Crema hidratante de noche',
+            precio='45.00',
+            stock=20,
+            marca='Chocolat',
+            imagen='products/crema-noir.jpg',
+            activo=True,
+        )
+        self.pedido = Pedido.objects.create(usuario=self.usuario)
+
+    def test_pedido_tiene_str_legible(self) -> None:
+        self.assertIn('comprador1', str(self.pedido))
+        self.assertIn('Pendiente', str(self.pedido))
+
+    def test_confirmar_cambia_estado(self) -> None:
+        self.pedido.confirmar()
+        self.assertEqual(self.pedido.estado, Pedido.Estado.CONFIRMADO)
+
+    def test_cancelar_cambia_estado(self) -> None:
+        self.pedido.cancelar()
+        self.assertEqual(self.pedido.estado, Pedido.Estado.CANCELADO)
+
+    def test_cancelar_pedido_entregado_lanza_error(self) -> None:
+        self.pedido.estado = Pedido.Estado.ENTREGADO
+        self.pedido.save()
+        with self.assertRaises(ValueError):
+            self.pedido.cancelar()
+
+    def test_calcular_total_suma_detalles(self) -> None:
+        DetallePedido.objects.create(
+            pedido=self.pedido,
+            producto=self.producto,
+            cantidad=2,
+            precio_unitario='45.00',
+        )
+        total = self.pedido.calcular_total()
+        self.assertEqual(total, Decimal('90.00'))
+        self.assertEqual(self.pedido.total, Decimal('90.00'))
+
+
+class DetallePedidoModelTests(TestCase):
+    def setUp(self) -> None:
+        user_model = get_user_model()
+        usuario = user_model.objects.create_user(
+            username='comprador2',
+            email='comprador2@example.com',
+            password='Secret123!',
+        )
+        self.producto = Producto.objects.create(
+            nombre='Mascarilla Trufa',
+            descripcion='Mascarilla purificante de trufa',
+            precio='30.00',
+            stock=15,
+            marca='Chocolat',
+            imagen='products/mascarilla-trufa.jpg',
+            activo=True,
+        )
+        self.pedido = Pedido.objects.create(usuario=usuario)
+
+    def test_detalle_tiene_str_legible(self) -> None:
+        detalle = DetallePedido.objects.create(
+            pedido=self.pedido,
+            producto=self.producto,
+            cantidad=3,
+            precio_unitario='30.00',
+        )
+        self.assertEqual(str(detalle), '3 x Mascarilla Trufa ($30.00)')
+
+    def test_subtotal_usa_precio_snapshot(self) -> None:
+        # El precio del producto sube, pero el snapshot conserva el original.
+        detalle = DetallePedido.objects.create(
+            pedido=self.pedido,
+            producto=self.producto,
+            cantidad=2,
+            precio_unitario='30.00',
+        )
+        self.producto.precio = Decimal('50.00')
+        self.producto.save()
+        self.assertEqual(detalle.subtotal, Decimal('60.00'))
+
