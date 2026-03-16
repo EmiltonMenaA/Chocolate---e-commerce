@@ -1,9 +1,13 @@
 import uuid
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from django.core.validators import MinValueValidator
 from django.conf import settings
 from django.db import models
+
+if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
 
 
 class Producto(models.Model):
@@ -47,6 +51,9 @@ class Producto(models.Model):
 
 
 class Carrito(models.Model):
+    if TYPE_CHECKING:
+        items: RelatedManager['ItemCarrito']
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     usuario = models.OneToOneField(
         settings.AUTH_USER_MODEL,

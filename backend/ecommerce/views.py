@@ -7,9 +7,10 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import PerfilUsuario, Producto
+from .models import Pedido, PerfilUsuario, Producto
 from .serializers import (
     CustomTokenObtainPairSerializer,
+    PedidoResumenSerializer,
     ProductoSerializer,
     RegistroClienteSerializer,
     RegistroTiendaSerializer,
@@ -165,4 +166,17 @@ class PanelProductoListView(generics.ListAPIView):
         except PerfilUsuario.DoesNotExist:
             pass
         return Producto.objects.filter(tienda=user).order_by('nombre')
+
+
+class MisPedidosListView(generics.ListAPIView):
+    serializer_class = PedidoResumenSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return (
+            Pedido.objects
+            .filter(usuario=self.request.user)
+            .prefetch_related('detalles')
+            .order_by('-fecha')
+        )
 

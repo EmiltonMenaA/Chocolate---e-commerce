@@ -1,80 +1,85 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import axios from 'axios'
 
 import CartFeedbackToast from '../components/CartFeedbackToast'
 import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
+
+type Producto = {
+  id: string
+  nombre: string
+  descripcion: string
+  precio: string
+  categoria: string
+  imagen: string | null
+  marca: string
+  stock: number
+}
 
 export default function ProductCatalog() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const [products, setProducts] = useState<Producto[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [priceRange, setPriceRange] = useState([0, 100])
-  const [addedProductId, setAddedProductId] = useState<number | null>(null)
+  const [priceRange, setPriceRange] = useState([0, 1000])
+  const [authError, setAuthError] = useState('')
+  const [addedProductId, setAddedProductId] = useState<string | null>(null)
   const [addedProductName, setAddedProductName] = useState('')
   const { addToCart } = useCart()
+  const { isAuthenticated } = useAuth()
 
-  const products = [
-    {
-      id: 1,
-      name: "Serum Facial Premium",
-      price: 49.99,
-      category: "serums",
-      image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=400&fit=crop",
-      rating: 4.8
-    },
-    {
-      id: 2,
-      name: "Crema Hidratante de Chocolate",
-      price: 39.99,
-      category: "cremas",
-      image: "https://images.unsplash.com/photo-1521391573892-e44906baee46?w=400&h=400&fit=crop",
-      rating: 4.9
-    },
-    {
-      id: 3,
-      name: "Máscara Facial Detox",
-      price: 34.99,
-      category: "mascaras",
-      image: "https://images.unsplash.com/photo-1596462502278-af0220c04a16?w=400&h=400&fit=crop",
-      rating: 4.7
-    },
-    {
-      id: 4,
-      name: "Aceite Corporal Aromático",
-      price: 44.99,
-      category: "aceites",
-      image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=400&fit=crop",
-      rating: 4.6
-    },
-    {
-      id: 5,
-      name: "Limpiador Facial Suave",
-      price: 29.99,
-      category: "limpiadores",
-      image: "https://images.unsplash.com/photo-1596462502278-af0220c04a16?w=400&h=400&fit=crop",
-      rating: 4.8
-    },
-    {
-      id: 6,
-      name: "Tónico Equilibrante",
-      price: 32.99,
-      category: "tonicos",
-      image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=400&fit=crop",
-      rating: 4.7
+  useEffect(() => {
+    let active = true
+    const loadProducts = async () => {
+      setIsLoading(true)
+      try {
+        const { data } = await axios.get<Producto[]>('/api/productos/')
+        if (!active) return
+        setProducts(data)
+        if (data.length > 0) {
+          const precios = data.map(item => Number(item.precio))
+          const min = Math.floor(Math.min(...precios))
+          const max = Math.ceil(Math.max(...precios))
+          setPriceRange([min, max])
+        }
+      } catch {
+        if (active) setError('No se pudo cargar el catálogo de productos.')
+      } finally {
+        if (active) setIsLoading(false)
+      }
     }
-  ]
 
-  const categories = [
-    { id: 'serums', name: 'Serums' },
-    { id: 'cremas', name: 'Cremas' },
-    { id: 'mascaras', name: 'Máscaras' },
-    { id: 'aceites', name: 'Aceites' },
-    { id: 'limpiadores', name: 'Limpiadores' },
-    { id: 'tonicos', name: 'Tónicos' }
-  ]
+    loadProducts()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const categories = Array.from(
+    new Set(products.map(item => item.categoria).filter(Boolean))
+  ).sort()
+
+  const query = searchParams.get('q')?.trim().toLowerCase() || ''
 
   const filteredProducts = products.filter(product => {
-    const matchesCategory = !selectedCategory || product.category === selectedCategory
-    const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1]
-    return matchesCategory && matchesPrice
+    const matchesCategory = !selectedCategory || product.categoria === selectedCategory
+    const priceValue = Number(product.precio)
+    const matchesPrice = priceValue >= priceRange[0] && priceValue <= priceRange[1]
+    const searchable = [
+      product.nombre,
+      product.descripcion,
+      product.marca,
+      product.categoria,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+    const matchesQuery = !query || searchable.includes(query)
+    return matchesCategory && matchesPrice && matchesQuery
   })
 
   useEffect(() => {
@@ -90,9 +95,20 @@ export default function ProductCatalog() {
     return () => window.clearTimeout(timeoutId)
   }, [addedProductId])
 
-  const handleAddToCart = (event: React.MouseEvent<HTMLButtonElement>, productId: number, productName: string) => {
+  const handleAddToCart = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    productId: string,
+    productName: string
+  ) => {
     event.preventDefault()
     event.stopPropagation()
+    if (!isAuthenticated) {
+      setAuthError('Debes iniciar sesión para agregar productos al carrito.')
+      navigate('/login', { state: { from: location } })
+      return
+    }
+
+    setAuthError('')
     const product = products.find((item) => item.id === productId)
     if (!product) {
       return
@@ -100,9 +116,9 @@ export default function ProductCatalog() {
 
     addToCart({
       id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
+      name: product.nombre,
+      price: Number(product.precio),
+      image: product.imagen || '/images/products/default-product.png',
       quantity: 1,
     })
     setAddedProductId(productId)
@@ -120,6 +136,18 @@ export default function ProductCatalog() {
         <h1 className="text-4xl font-bold text-cocoa-900 dark:text-white mb-8">
           Catálogo de Productos
         </h1>
+
+        {query && (
+          <p className="mb-6 text-cocoa-600 dark:text-slate-300">
+            Resultados para: <span className="font-semibold">"{query}"</span>
+          </p>
+        )}
+
+        {authError && (
+          <div className="mb-6 px-4 py-3 bg-amber-50 border border-amber-300 rounded-lg text-amber-700 text-sm">
+            {authError}
+          </div>
+        )}
 
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Sidebar - Filters */}
@@ -147,15 +175,15 @@ export default function ProductCatalog() {
                   </button>
                   {categories.map(cat => (
                     <button
-                      key={cat.id}
-                      onClick={() => setSelectedCategory(cat.id)}
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
                       className={`block w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        selectedCategory === cat.id
+                        selectedCategory === cat
                           ? 'bg-primary text-white'
                           : 'text-cocoa-700 dark:text-slate-300 hover:bg-cocoa-100 dark:hover:bg-cocoa-700'
                       }`}
                     >
-                      {cat.name}
+                      {cat}
                     </button>
                   ))}
                 </div>
@@ -169,16 +197,16 @@ export default function ProductCatalog() {
                 <div className="space-y-2">
                   <input
                     type="range"
-                    min="0"
-                    max="100"
+                    min={Math.min(...products.map(item => Number(item.precio)), 0)}
+                    max={Math.max(...products.map(item => Number(item.precio)), 1000)}
                     value={priceRange[0]}
                     onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
                     className="w-full"
                   />
                   <input
                     type="range"
-                    min="0"
-                    max="100"
+                    min={Math.min(...products.map(item => Number(item.precio)), 0)}
+                    max={Math.max(...products.map(item => Number(item.precio)), 1000)}
                     value={priceRange[1]}
                     onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
                     className="w-full"
@@ -193,6 +221,18 @@ export default function ProductCatalog() {
 
           {/* Products Grid */}
           <div className="lg:col-span-3">
+            {isLoading && (
+              <div className="text-center py-12 text-cocoa-500">
+                <span className="material-symbols-outlined animate-spin text-4xl mb-4 block">progress_activity</span>
+                Cargando productos...
+              </div>
+            )}
+
+            {error && !isLoading && (
+              <div className="text-center py-12 text-red-500">{error}</div>
+            )}
+
+            {!isLoading && !error && (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProducts.map(product => (
                 <Link
@@ -202,28 +242,26 @@ export default function ProductCatalog() {
                 >
                   <div className="relative overflow-hidden h-48 bg-cocoa-100">
                     <img
-                      src={product.image}
-                      alt={product.name}
+                      src={product.imagen || '/images/products/default-product.png'}
+                      alt={product.nombre}
                       className="w-full h-full object-cover hover:scale-105 transition-transform"
                     />
                   </div>
                   <div className="p-4">
                     <h3 className="font-bold text-lg text-cocoa-900 dark:text-white mb-2 line-clamp-2">
-                      {product.name}
+                      {product.nombre}
                     </h3>
+                    <p className="text-sm text-cocoa-500 mb-2">{product.marca}</p>
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-2xl font-bold text-primary">
-                        ${product.price.toFixed(2)}
+                        ${Number(product.precio).toFixed(2)}
                       </span>
-                      <div className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-yellow-500 text-sm">star</span>
-                        <span className="text-sm font-semibold text-cocoa-900 dark:text-white">
-                          {product.rating}
-                        </span>
-                      </div>
+                      <span className="text-xs px-2 py-1 bg-cocoa-100 rounded-full text-cocoa-600">
+                        {product.categoria || 'Sin categoría'}
+                      </span>
                     </div>
                     <button
-                      onClick={(event) => handleAddToCart(event, product.id, product.name)}
+                      onClick={(event) => handleAddToCart(event, product.id, product.nombre)}
                       className={`w-full py-2 rounded-lg font-semibold text-white transition-all ${
                         addedProductId === product.id
                           ? 'bg-emerald-600 hover:bg-emerald-700 cart-button-pop'
@@ -236,8 +274,9 @@ export default function ProductCatalog() {
                 </Link>
               ))}
             </div>
+            )}
 
-            {filteredProducts.length === 0 && (
+            {!isLoading && !error && filteredProducts.length === 0 && (
               <div className="text-center py-12">
                 <span className="material-symbols-outlined text-4xl text-cocoa-400 mb-4 block">
                   search_off

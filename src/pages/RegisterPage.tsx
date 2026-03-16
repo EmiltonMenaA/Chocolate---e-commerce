@@ -34,9 +34,13 @@ export default function RegisterPage() {
       await login(formData.email, formData.password)
       navigate('/dashboard', { replace: true })
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: Record<string, string[]> } }
+      const axiosErr = err as {
+        response?: { data?: Record<string, string[]> | string }
+      }
       const data = axiosErr?.response?.data
-      if (data) {
+      if (typeof data === 'string') {
+        setError(data.trim().startsWith('<') ? 'Ocurrió un error en el servidor. Intenta de nuevo.' : data)
+      } else if (data && typeof data === 'object') {
         const first = Object.values(data).flat()[0]
         setError(typeof first === 'string' ? first : 'Error al crear la cuenta.')
       } else {

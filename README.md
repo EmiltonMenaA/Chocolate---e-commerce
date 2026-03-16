@@ -1,149 +1,147 @@
-# Chocolate - E-Commerce Premium de Skincare
+# Chocolat - E-commerce de skincare
 
-Un proyecto de e-commerce moderno con frontend en React + Vite y backend en Django 4.
+Aplicación full stack con frontend en React y backend en Django REST Framework.
 
-## Características
+Estado actual del proyecto:
 
--  Interfaz moderna y responsiva
--  Tema oscuro/claro
--  Catálogo de productos con filtros
--  Carrito de compras funcional
--  Flujo de checkout multipasos
--  Autenticación de usuarios
--  Dashboard de cliente
--  Dashboard de vendedor
--  Cuestionario de tipo de piel personalizado
--  Diseño completamente responsivo
+- Autenticación JWT con roles cliente, tienda y admin
+- Registro separado para clientes y tiendas
+- Sección pública para clientes y panel separado para vendedores
+- Catálogo, detalle y home conectados a API real
+- Panel de tienda con crear, editar, activar y eliminar productos
+- Carga de imágenes de producto en backend
+- Dashboard de cliente conectado a pedidos reales
+- Comando de seed para poblar base de datos con tiendas, clientes, productos y pedidos
 
-## Tecnologías
+## Stack técnico
 
-- **React 18** - Biblioteca de UI
-- **TypeScript** - Type safety
-- **Vite** - Build tool rápido
-- **Tailwind CSS** - Utilidades CSS
-- **React Router** - Enrutamiento
-- **Django 4.2** - Backend y API
+- Frontend: React 18, TypeScript, Vite, React Router, Tailwind CSS, Axios
+- Backend: Django 4.2, Django REST Framework, Simple JWT, CORS Headers
+- Base de datos: PostgreSQL 16
+- Infraestructura local: Docker Compose
 
+## Ejecución con Docker
 
-## Instalación
+1. Levantar servicios
 
-1. Clona el repositorio
-```bash
-git clone <repo-url>
-cd E-commerce\ Chocolate
-```
+	docker-compose up -d --build
 
-2. Instala las dependencias
-```bash
-npm install
-```
+2. Verificar servicios
 
-3. Inicia el servidor de desarrollo
-```bash
-npm run dev
-```
+	Frontend: http://127.0.0.1:3000
 
-4. Abre [http://localhost:3000](http://localhost:3000) en tu navegador
+	Backend health: http://127.0.0.1:8000/api/health/
 
-## Backend Django 4
+3. Detener servicios
 
-1. Instala dependencias del backend
-```bash
-pip install -r backend/requirements.txt
-```
+	docker-compose down
 
-2. Aplica migraciones
-```bash
-python backend/manage.py migrate
-```
+## Ejecución local sin Docker
 
-3. Ejecuta el servidor Django
-```bash
-python backend/manage.py runserver
-```
+Frontend
 
-4. Verifica el endpoint de salud
-```bash
-GET http://127.0.0.1:8000/api/health/
-```
+1. Instalar dependencias
 
-## Ejecutar Con Docker (Django + PostgreSQL)
+	npm install
 
-1. Construir y levantar contenedores
-```bash
-docker compose up --build
-```
+2. Ejecutar desarrollo
 
-2. Verificar backend
-```bash
-http://127.0.0.1:8000/api/health/
-```
+	npm run dev
 
-3. Detener contenedores
-```bash
-docker compose down
-```
+Backend
 
-Servicios creados por Docker Compose:
-- `web`: Django 4 en `http://127.0.0.1:8000`
-- `db`: PostgreSQL 16 en puerto `5432`
+1. Instalar dependencias
 
-## Estructura de Carpetas
+	pip install -r backend/requirements.txt
 
-```
-backend/
-├── config/          # Proyecto Django (settings/urls/wsgi/asgi)
-├── ecommerce/       # App base del backend
-├── manage.py
-└── requirements.txt
+2. Migrar base de datos
 
-src/
-├── components/       # Componentes reutilizables
-│   ├── Layout.tsx
-│   ├── Header.tsx
-│   └── Footer.tsx
-├── pages/           # Páginas de la aplicación
-│   ├── HomePage.tsx
-│   ├── ProductCatalog.tsx
-│   ├── ProductDetail.tsx
-│   ├── ShoppingCart.tsx
-│   ├── Checkout.tsx
-│   ├── LoginPage.tsx
-│   ├── RegisterPage.tsx
-│   ├── SkinQuiz.tsx
-│   ├── CustomerDashboard.tsx
-│   ├── VendorDashboard.tsx
-│   ├── AddProduct.tsx
-│   └── PaymentMethod.tsx
-├── hooks/           # Custom hooks
-├── context/         # Context API
-├── types/           # TypeScript types
-├── styles/          # Estilos globales
-├── App.tsx          # Componente raíz
-└── main.tsx         # Punto de entrada
-```
+	python backend/manage.py migrate
 
-## Scripts Disponibles
+3. Ejecutar servidor
 
-- `npm run dev` - Inicia servidor de desarrollo
-- `npm run build` - Construye para producción
-- `npm run preview` - Previsualiza build de producción
-- `npm run lint` - Ejecuta ESLint
+	python backend/manage.py runserver
 
+## Poblar la base de datos
 
-1. **Integración API**: Conectar con un backend (Node.js, Django, etc.)
-2. **Gestión de Estado**: Implementar Zustand o Redux para estado global
-3. **Autenticación**: Integrar sistema de autenticación real
-4. **Pagos**: Integrar Stripe, PayPal o similar
-5. **Base de Datos**: Configurar base de datos para productos y órdenes
-6. **Testing**: Agregar pruebas unitarias e integración
+Comando de seed:
 
-##  Derechos de autor
+	docker-compose exec web python manage.py seed_data
 
-Este código ha sido desarrollado por:
+Con limpieza previa de productos y pedidos:
 
-- **Emilton Mena Acevedo**  
-- **Mariana Hincapié Henao**  
-- **Fabián Andrés Buriticá Cardozo**
+	docker-compose exec web python manage.py seed_data --reset
 
-Todos los derechos reservados ©
+Usuarios de prueba creados por seed:
+
+- Tiendas
+  - tienda.centro@chocolat.com / 12345678
+  - tienda.norte@chocolat.com / 12345678
+
+- Clientes
+  - cliente.demo@chocolat.com / 12345678
+  - cliente.demo2@chocolat.com / 12345678
+
+## Endpoints principales
+
+Auth
+
+- POST /api/auth/token/
+- POST /api/auth/token/refresh/
+- POST /api/auth/registro/cliente/
+- POST /api/auth/registro/tienda/
+- GET /api/auth/me/
+- POST /api/auth/logout/
+
+Productos y pedidos
+
+- GET /api/productos/
+- POST /api/productos/ (tienda/admin)
+- GET /api/productos/{id}/
+- PATCH /api/productos/{id}/ (owner/admin)
+- DELETE /api/productos/{id}/ (owner/admin)
+- GET /api/panel/productos/ (tienda/admin)
+- GET /api/pedidos/mis/ (cliente autenticado)
+
+## Reglas funcionales implementadas
+
+- Solo usuarios autenticados pueden agregar al carrito
+- Checkout y payment requieren login de cliente
+- Solo tienda/admin puede gestionar productos
+- Catálogo público muestra productos activos
+
+## Scripts útiles
+
+- npm run dev
+- npm run build
+- npm run lint
+- npm run preview
+
+## Validación
+
+Frontend:
+
+	npm run build
+
+Backend:
+
+	docker-compose exec web python manage.py check
+
+	docker-compose exec web python manage.py test ecommerce.tests -v 1
+
+## Estructura general
+
+- backend/config: configuración de Django
+- backend/ecommerce: modelos, serializers, vistas, urls y tests
+- backend/ecommerce/management/commands/seed_data.py: carga de datos inicial
+- src/components: layout, header, footer, rutas protegidas
+- src/context: contexto de autenticación y carrito
+- src/pages: home, catálogo, detalle, carrito, checkout, panel tienda, auth
+
+## Derechos de autor
+
+Desarrollado por:
+
+- Emilton Mena Acevedo
+- Mariana Hincapié Henao
+- Fabián Andrés Buriticá Cardozo

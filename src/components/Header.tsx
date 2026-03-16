@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
@@ -17,10 +17,21 @@ export default function Header() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    if (searchQuery.trim()) {
-      console.log('Buscando:', searchQuery)
+    const query = searchQuery.trim()
+    if (!query) {
+      navigate('/products')
+      return
     }
+    navigate(`/products?q=${encodeURIComponent(query)}`)
   }
+
+  useEffect(() => {
+    if (location.pathname !== '/products') {
+      return
+    }
+    const params = new URLSearchParams(location.search)
+    setSearchQuery(params.get('q') || '')
+  }, [location.pathname, location.search])
 
   const handleLogout = async () => {
     setShowUserMenu(false)

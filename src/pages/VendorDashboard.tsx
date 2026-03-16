@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+﻿import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
@@ -20,7 +20,7 @@ export default function VendorDashboard() {
   const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const fetchProductos = async () => {
+  const fetchProductos = useCallback(async () => {
     try {
       const { data } = await axios.get('/api/panel/productos/', {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -31,11 +31,11 @@ export default function VendorDashboard() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [accessToken])
 
   useEffect(() => {
     if (accessToken) fetchProductos()
-  }, [accessToken])
+  }, [accessToken, fetchProductos])
 
   const handleToggleActivo = async (producto: Producto) => {
     try {

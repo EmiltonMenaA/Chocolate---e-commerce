@@ -36,9 +36,13 @@ export default function TiendaRegister() {
       await login(formData.email, formData.password)
       navigate('/panel/dashboard', { replace: true })
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: Record<string, string[]> } }
+      const axiosErr = err as {
+        response?: { data?: Record<string, string[]> | string }
+      }
       const data = axiosErr?.response?.data
-      if (data) {
+      if (typeof data === 'string') {
+        setError(data.trim().startsWith('<') ? 'Ocurrió un error en el servidor. Intenta de nuevo.' : data)
+      } else if (data && typeof data === 'object') {
         const first = Object.values(data).flat()[0]
         setError(typeof first === 'string' ? first : 'Error al registrar la tienda.')
       } else {
@@ -84,6 +88,16 @@ export default function TiendaRegister() {
       {/* Right form */}
       <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto">
         <div className="w-full max-w-lg py-8">
+          <div className="mb-6">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1 text-cocoa-400 hover:text-white text-sm transition-colors"
+            >
+              <span className="material-symbols-outlined text-base">arrow_back</span>
+              Volver al inicio
+            </Link>
+          </div>
+
           <div className="lg:hidden flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-cafe rounded-xl flex items-center justify-center font-bold text-xl text-white">C</div>
             <span className="text-2xl font-bold text-white">Chocolat</span>

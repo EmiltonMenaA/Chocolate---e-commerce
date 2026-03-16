@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Sum
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import PerfilUsuario, Producto
+from .models import DetallePedido, Pedido, PerfilUsuario, Producto
 
 User = get_user_model()
 
@@ -31,7 +32,7 @@ class RegistroClienteSerializer(serializers.ModelSerializer):
     def create(self, validated_data: dict) -> User:
         validated_data.pop('password2')
         password = validated_data.pop('password')
-        email = validated_data['email']
+        email = validated_data.pop('email')
         user = User.objects.create_user(
             username=email,
             email=email,
@@ -73,7 +74,7 @@ class RegistroTiendaSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         nombre_tienda = validated_data.pop('nombre_tienda')
         telefono = validated_data.pop('telefono', '')
-        email = validated_data['email']
+        email = validated_data.pop('email')
         user = User.objects.create_user(
             username=email,
             email=email,
@@ -153,4 +154,27 @@ class ProductoSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             validated_data['tienda'] = request.user
+        # If frontend omits this field in multipart requests, keep products visible in catalog.
+        validated_data.setdefault('activo', True)
         return super().create(validated_data)
+
+
+class PedidoResumenSerializer(serializers.ModelSerializer):
+    items_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Pedido
+        fields = ('id', 'fecha', 'estado', 'total', 'items_count')
+
+    def get_items_count(self, obj: Pedido) -> int:
+        # Reuse prefetched details when available; fallback to query for safety.
+        detalles = getattr(obj, '_prefetched_objects_cache', {}).get('detalles')
+        if detalles is not None:
+            return sum(detalle.cantidad for detalle in detalles)
+        return (
+            DetallePedido.objects
+            .filter(pedido=obj)
+            .aggregate(total=Sum('cantidad'))
+            .get('total')
+            or 0
+        )

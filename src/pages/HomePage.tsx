@@ -1,17 +1,31 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import axios from 'axios'
 import { getBackendHealth } from '../services/api'
+
+type Producto = {
+  id: string
+  nombre: string
+  descripcion: string
+  precio: string
+  imagen: string | null
+}
 
 export default function HomePage() {
   const [backendStatus, setBackendStatus] = useState<'loading' | 'online' | 'offline'>('loading')
+  const [featuredProducts, setFeaturedProducts] = useState<Producto[]>([])
 
   useEffect(() => {
     let active = true
 
     getBackendHealth()
-      .then(() => {
+      .then(async () => {
         if (active) {
           setBackendStatus('online')
+        }
+        const { data } = await axios.get<Producto[]>('/api/productos/')
+        if (active) {
+          setFeaturedProducts(data.slice(0, 4))
         }
       })
       .catch(() => {
@@ -24,37 +38,6 @@ export default function HomePage() {
       active = false
     }
   }, [])
-
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "Serum Facial Premium",
-      price: "$49.99",
-      image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=400&fit=crop",
-      description: "Serum facial con ingredientes naturales"
-    },
-    {
-      id: 2,
-      name: "Crema Hidratante",
-      price: "$39.99",
-      image: "https://images.unsplash.com/photo-1521391573892-e44906baee46?w=400&h=400&fit=crop",
-      description: "Crema hidratante de lujo"
-    },
-    {
-      id: 3,
-      name: "Máscara Facial",
-      price: "$34.99",
-      image: "https://images.unsplash.com/photo-1596462502278-af0220c04a16?w=400&h=400&fit=crop",
-      description: "Máscara revitalizante natural"
-    },
-    {
-      id: 4,
-      name: "Aceite Corporal",
-      price: "$44.99",
-      image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=400&fit=crop",
-      description: "Aceite corporal aromático"
-    }
-  ]
 
   return (
     <div className="w-full">
@@ -128,24 +111,30 @@ export default function HomePage() {
                 className="bg-white dark:bg-cocoa-800 rounded-xl overflow-hidden hover:shadow-lg transition-shadow"
               >
                 <img 
-                  src={product.image} 
-                  alt={product.name}
+                  src={product.imagen || '/images/products/default-product.png'} 
+                  alt={product.nombre}
                   className="w-full h-48 object-cover"
                 />
                 <div className="p-4">
                   <h3 className="font-bold text-lg text-cocoa-900 dark:text-white mb-2">
-                    {product.name}
+                    {product.nombre}
                   </h3>
                   <p className="text-sm text-cocoa-700 dark:text-slate-300 mb-3">
-                    {product.description}
+                    {product.descripcion}
                   </p>
                   <p className="text-xl font-bold text-primary">
-                    {product.price}
+                    ${Number(product.precio).toFixed(2)}
                   </p>
                 </div>
               </Link>
             ))}
           </div>
+
+          {backendStatus === 'online' && featuredProducts.length === 0 && (
+            <p className="text-cocoa-500 mt-6">
+              Aún no hay productos cargados. Puedes poblar la base con el comando seed.
+            </p>
+          )}
 
           <div className="text-center mt-12">
             <Link 

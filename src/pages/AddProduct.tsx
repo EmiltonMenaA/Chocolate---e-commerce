@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 
@@ -11,6 +11,8 @@ const CATEGORIAS = [
 export default function AddProduct() {
   const { accessToken } = useAuth()
   const navigate = useNavigate()
+  const { id } = useParams()
+  const isEditMode = Boolean(id)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState({
@@ -24,8 +26,41 @@ export default function AddProduct() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isFetching, setIsFetching] = useState(isEditMode)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+
+  useEffect(() => {
+    let ignore = false
+
+    const loadProducto = async () => {
+      if (!isEditMode || !id) return
+      try {
+        const { data } = await axios.get(`/api/productos/${id}/`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        if (ignore) return
+        setFormData({
+          nombre: data.nombre ?? '',
+          descripcion: data.descripcion ?? '',
+          precio: String(data.precio ?? ''),
+          categoria: data.categoria ?? '',
+          marca: data.marca ?? '',
+          stock: String(data.stock ?? ''),
+        })
+        if (data.imagen) setImagePreview(data.imagen)
+      } catch {
+        if (!ignore) setError('No se pudo cargar el producto para editar.')
+      } finally {
+        if (!ignore) setIsFetching(false)
+      }
+    }
+
+    loadProducto()
+    return () => {
+      ignore = true
+    }
+  }, [accessToken, id, isEditMode])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -49,12 +84,22 @@ export default function AddProduct() {
       const body = new FormData()
       Object.entries(formData).forEach(([k, v]) => body.append(k, v))
       if (imageFile) body.append('imagen', imageFile)
-      await axios.post('/api/productos/', body, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      if (!isEditMode) body.append('activo', 'true')
+      if (isEditMode && id) {
+        await axios.patch(`/api/productos/${id}/`, body, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+      } else {
+        await axios.post('/api/productos/', body, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+      }
       setSuccess(true)
       setTimeout(() => navigate('/panel/productos'), 1500)
     } catch (err: unknown) {
@@ -62,7 +107,7 @@ export default function AddProduct() {
       const data = axiosErr?.response?.data
       if (data) {
         const first = Object.values(data).flat()[0]
-        setError(typeof first === 'string' ? first : 'Error al crear el producto.')
+        setError(typeof first === 'string' ? first : isEditMode ? 'Error al actualizar el producto.' : 'Error al crear el producto.')
       } else {
         setError('Error de conexión. Intenta de nuevo.')
       }
@@ -77,8 +122,19 @@ export default function AddProduct() {
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
           <span className="material-symbols-outlined text-green-600 text-4xl">check_circle</span>
         </div>
-        <h2 className="text-2xl font-bold text-cocoa-900 dark:text-white mb-2">¡Producto creado!</h2>
+        <h2 className="text-2xl font-bold text-cocoa-900 dark:text-white mb-2">
+          {isEditMode ? '¡Producto actualizado!' : '¡Producto creado!'}
+        </h2>
         <p className="text-cocoa-500">Redirigiendo al panel...</p>
+      </div>
+    )
+  }
+
+  if (isFetching) {
+    return (
+      <div className="flex items-center justify-center py-20 text-cocoa-500">
+        <span className="material-symbols-outlined animate-spin text-2xl mr-2">progress_activity</span>
+        Cargando producto...
       </div>
     )
   }
@@ -86,8 +142,14 @@ export default function AddProduct() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-cocoa-900 dark:text-white">Nuevo Producto</h1>
-        <p className="text-cocoa-500 mt-1">Completa la información para publicar tu producto en la tienda</p>
+        <h1 className="text-3xl font-bold text-cocoa-900 dark:text-white">
+          {isEditMode ? 'Editar Producto' : 'Nuevo Producto'}
+        </h1>
+        <p className="text-cocoa-500 mt-1">
+          {isEditMode
+            ? 'Actualiza la información del producto en tu catálogo'
+            : 'Completa la información para publicar tu producto en la tienda'}
+        </p>
       </div>
 
       {error && (
@@ -229,12 +291,12 @@ export default function AddProduct() {
             {isLoading ? (
               <>
                 <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
-                Publicando...
+                {isEditMode ? 'Guardando...' : 'Publicando...'}
               </>
             ) : (
               <>
                 <span className="material-symbols-outlined text-lg">publish</span>
-                Publicar producto
+                {isEditMode ? 'Guardar cambios' : 'Publicar producto'}
               </>
             )}
           </button>

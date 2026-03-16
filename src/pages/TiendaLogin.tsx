@@ -74,6 +74,16 @@ export default function TiendaLogin() {
       {/* Right form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
+          <div className="mb-6">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1 text-cocoa-400 hover:text-white text-sm transition-colors"
+            >
+              <span className="material-symbols-outlined text-base">arrow_back</span>
+              Volver al inicio
+            </Link>
+          </div>
+
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-cafe rounded-xl flex items-center justify-center font-bold text-xl text-white">

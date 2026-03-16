@@ -35,8 +35,22 @@ function App() {
               <Route path="/products" element={<ProductCatalog />} />
               <Route path="/products/:id" element={<ProductDetail />} />
               <Route path="/cart" element={<ShoppingCart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/payment" element={<PaymentMethod />} />
+              <Route
+                path="/checkout"
+                element={
+                  <ProtectedRoute rol="cliente">
+                    <Checkout />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/payment"
+                element={
+                  <ProtectedRoute rol="cliente">
+                    <PaymentMethod />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/skin-quiz" element={<SkinQuiz />} />
               <Route path="/find-boutique" element={<FindBoutiquePage />} />
               <Route
@@ -64,6 +78,7 @@ function App() {
               <Route path="/panel/dashboard" element={<VendorDashboard />} />
               <Route path="/panel/productos" element={<VendorDashboard />} />
               <Route path="/panel/productos/nuevo" element={<AddProduct />} />
+              <Route path="/panel/productos/:id/editar" element={<AddProduct />} />
             </Route>
           </Routes>
         </Router>

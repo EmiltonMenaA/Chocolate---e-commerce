@@ -1,20 +1,61 @@
+import { useEffect, useMemo, useState } from 'react'
+import axios from 'axios'
+
+import { useAuth } from '../context/AuthContext'
+
+type Pedido = {
+  id: string
+  fecha: string
+  estado: string
+  total: string
+  items_count: number
+}
+
 export default function CustomerDashboard() {
-  const orders = [
-    {
-      id: 1,
-      date: "2026-03-01",
-      total: "$89.98",
-      status: "Entregado",
-      items: 2
-    },
-    {
-      id: 2,
-      date: "2026-02-15",
-      total: "$49.99",
-      status: "En tránsito",
-      items: 1
+  const { accessToken, user } = useAuth()
+  const [orders, setOrders] = useState<Pedido[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let active = true
+    const loadOrders = async () => {
+      if (!accessToken) return
+      setIsLoading(true)
+      try {
+        const { data } = await axios.get<Pedido[]>('/api/pedidos/mis/', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        if (active) setOrders(data)
+      } catch {
+        if (active) setError('No se pudieron cargar tus pedidos.')
+      } finally {
+        if (active) setIsLoading(false)
+      }
     }
-  ]
+    loadOrders()
+    return () => {
+      active = false
+    }
+  }, [accessToken])
+
+  const stats = useMemo(() => {
+    const totalOrders = orders.length
+    const delivered = orders.filter(order => order.estado === 'entregado').length
+    const totalSpent = orders.reduce((sum, order) => sum + Number(order.total), 0)
+    return { totalOrders, delivered, totalSpent }
+  }, [orders])
+
+  const estadoLabel = (estado: string) => {
+    const labels: Record<string, string> = {
+      pendiente: 'Pendiente',
+      confirmado: 'Confirmado',
+      enviado: 'Enviado',
+      entregado: 'Entregado',
+      cancelado: 'Cancelado',
+    }
+    return labels[estado] || estado
+  }
 
   return (
     <div className="px-6 lg:px-20 py-12">
@@ -27,7 +68,7 @@ export default function CustomerDashboard() {
           {/* Welcome Card */}
           <div className="md:col-span-3 bg-white dark:bg-cocoa-800 rounded-xl p-8">
             <h2 className="text-2xl font-bold text-cocoa-900 dark:text-white mb-2">
-              ¡Bienvenida, María!
+              ¡Bienvenida, {user?.nombre || 'Cliente'}!
             </h2>
             <p className="text-cocoa-700 dark:text-slate-300">
               Aquí puedes ver tu perfil, órdenes anteriores y preferencias
@@ -39,24 +80,24 @@ export default function CustomerDashboard() {
             <span className="material-symbols-outlined text-4xl text-primary mb-2 block">
               shopping_bag
             </span>
-            <p className="text-3xl font-bold text-cocoa-900 dark:text-white">5</p>
+            <p className="text-3xl font-bold text-cocoa-900 dark:text-white">{stats.totalOrders}</p>
             <p className="text-cocoa-700 dark:text-slate-300">Órdenes Total</p>
           </div>
 
           <div className="bg-white dark:bg-cocoa-800 rounded-xl p-6 text-center">
             <span className="material-symbols-outlined text-4xl text-green-500 mb-2 block">
-              favorite
+              payments
             </span>
-            <p className="text-3xl font-bold text-cocoa-900 dark:text-white">12</p>
-            <p className="text-cocoa-700 dark:text-slate-300">Favoritos</p>
+            <p className="text-3xl font-bold text-cocoa-900 dark:text-white">${stats.totalSpent.toFixed(2)}</p>
+            <p className="text-cocoa-700 dark:text-slate-300">Total Gastado</p>
           </div>
 
           <div className="bg-white dark:bg-cocoa-800 rounded-xl p-6 text-center">
             <span className="material-symbols-outlined text-4xl text-blue-500 mb-2 block">
-              card_membership
+              local_shipping
             </span>
-            <p className="text-3xl font-bold text-cocoa-900 dark:text-white">Gold</p>
-            <p className="text-cocoa-700 dark:text-slate-300">Membresía</p>
+            <p className="text-3xl font-bold text-cocoa-900 dark:text-white">{stats.delivered}</p>
+            <p className="text-cocoa-700 dark:text-slate-300">Pedidos Entregados</p>
           </div>
         </div>
 
@@ -90,27 +131,53 @@ export default function CustomerDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {orders.map(order => (
+                {isLoading && (
+                  <tr>
+                    <td className="px-6 py-6 text-center text-cocoa-500" colSpan={5}>
+                      Cargando pedidos...
+                    </td>
+                  </tr>
+                )}
+
+                {!isLoading && error && (
+                  <tr>
+                    <td className="px-6 py-6 text-center text-red-500" colSpan={5}>
+                      {error}
+                    </td>
+                  </tr>
+                )}
+
+                {!isLoading && !error && orders.length === 0 && (
+                  <tr>
+                    <td className="px-6 py-6 text-center text-cocoa-500" colSpan={5}>
+                      Aún no tienes pedidos registrados.
+                    </td>
+                  </tr>
+                )}
+
+                {!isLoading && !error && orders.map(order => (
                   <tr key={order.id} className="border-b border-cocoa-200 dark:border-cocoa-700 hover:bg-cocoa-50 dark:hover:bg-cocoa-700">
                     <td className="px-6 py-4 font-semibold text-cocoa-900 dark:text-white">
-                      #{order.id}
+                      #{order.id.slice(0, 8)}
                     </td>
                     <td className="px-6 py-4 text-cocoa-700 dark:text-slate-300">
-                      {order.date}
+                      {new Date(order.fecha).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-cocoa-700 dark:text-slate-300">
-                      {order.items}
+                      {order.items_count}
                     </td>
                     <td className="px-6 py-4 font-bold text-primary">
-                      {order.total}
+                      ${Number(order.total).toFixed(2)}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        order.status === "Entregado"
+                        order.estado === 'entregado'
                           ? "bg-green-100 text-green-700"
-                          : "bg-blue-100 text-blue-700"
+                          : order.estado === 'cancelado'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-blue-100 text-blue-700'
                       }`}>
-                        {order.status}
+                        {estadoLabel(order.estado)}
                       </span>
                     </td>
                   </tr>

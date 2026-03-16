@@ -5,6 +5,7 @@ from .views import (
     CustomTokenObtainPairView,
     LogoutView,
     MeView,
+    MisPedidosListView,
     PanelProductoListView,
     ProductoDetailView,
     ProductoListCreateView,
@@ -25,6 +26,7 @@ urlpatterns = [
     # Products (public read / tienda write)
     path('productos/', ProductoListCreateView.as_view(), name='producto_list_create'),
     path('productos/<uuid:pk>/', ProductoDetailView.as_view(), name='producto_detail'),
+    path('pedidos/mis/', MisPedidosListView.as_view(), name='mis_pedidos'),
     # Panel (vendor-only)
     path('panel/productos/', PanelProductoListView.as_view(), name='panel_productos'),
 ]
