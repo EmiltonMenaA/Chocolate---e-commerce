@@ -27,14 +27,24 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'change-me-in-production')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() in {'true', '1', 'yes'}
 
-ALLOWED_HOSTS = [
+_default_allowed_hosts = {
+    '127.0.0.1',
+    'localhost',
+    'testserver',
+    'web',
+    'chocolate_web',
+    'frontend',
+    'chocolate_frontend',
+}
+
+_env_allowed_hosts = {
     host.strip()
-    for host in os.getenv(
-        'DJANGO_ALLOWED_HOSTS',
-        '127.0.0.1,localhost,testserver,web,chocolate_web'
-    ).split(',')
+    for host in os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',')
     if host.strip()
-]
+}
+
+# Keep essential local/Docker hosts even if DJANGO_ALLOWED_HOSTS is narrowly set.
+ALLOWED_HOSTS = sorted(_default_allowed_hosts | _env_allowed_hosts)
 
 
 # Application definition
