@@ -30,14 +30,15 @@ class RegistroClienteSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data: dict) -> User:
-        validated_data.pop('password2')
+        validated_data.pop('password2', None)
         password = validated_data.pop('password')
         email = validated_data.pop('email')
         user = User.objects.create_user(
             username=email,
             email=email,
             password=password,
-            **validated_data,
+            first_name=validated_data.get('first_name', ''),
+            last_name=validated_data.get('last_name', ''),
         )
         PerfilUsuario.objects.create(usuario=user, rol=PerfilUsuario.Rol.CLIENTE)
         return user
@@ -70,7 +71,7 @@ class RegistroTiendaSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data: dict) -> User:
-        validated_data.pop('password2')
+        validated_data.pop('password2', None)
         password = validated_data.pop('password')
         nombre_tienda = validated_data.pop('nombre_tienda')
         telefono = validated_data.pop('telefono', '')
@@ -79,7 +80,8 @@ class RegistroTiendaSerializer(serializers.ModelSerializer):
             username=email,
             email=email,
             password=password,
-            **validated_data,
+            first_name=validated_data.get('first_name', ''),
+            last_name=validated_data.get('last_name', ''),
         )
         PerfilUsuario.objects.create(
             usuario=user,
@@ -157,6 +159,12 @@ class ProductoSerializer(serializers.ModelSerializer):
         # If frontend omits this field in multipart requests, keep products visible in catalog.
         validated_data.setdefault('activo', True)
         return super().create(validated_data)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Return media as relative path so frontend proxy resolves it correctly in Docker.
+        data['imagen'] = instance.imagen.url if instance.imagen else None
+        return data
 
 
 class PedidoResumenSerializer(serializers.ModelSerializer):

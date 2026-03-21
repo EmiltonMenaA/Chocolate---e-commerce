@@ -1,33 +1,91 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import axios from 'axios'
+import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
 
 export default function Checkout() {
+  const { cartItems, clearCart } = useCart()
+  const { accessToken, isAuthenticated } = useAuth()
   const [step, setStep] = useState(1)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [paymentError, setPaymentError] = useState('')
   const [formData, setFormData] = useState({
     email: '',
     fullName: '',
     phone: '',
     address: '',
     city: '',
-    state: '',
-    zipCode: ''
+    homeType: 'casa',
+    tower: '',
+    floor: '',
+    paymentMethod: 'tarjeta',
+    cardName: '',
+    cardNumber: '',
+    cardExpiry: '',
+    cardCvv: '',
+    pseBank: '',
+    pseDocument: ''
   })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
+      ...(name === 'homeType' && value === 'casa' ? { tower: '', floor: '' } : {})
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (step < 3) {
-      setStep(step + 1)
-    } else {
-      console.log('Order placed', formData)
-      // TODO: Procesar la orden
+    setPaymentError('')
+
+    if (step === 1) {
+      setStep(2)
+      return
+    }
+
+    if (step === 2) {
+      if (!isAuthenticated || !accessToken) {
+        setPaymentError('Debes iniciar sesión para completar la compra.')
+        return
+      }
+
+      if (cartItems.length === 0) {
+        setPaymentError('Tu carrito está vacío.')
+        return
+      }
+
+      setIsSubmitting(true)
+      try {
+        await axios.post(
+          '/api/pedidos/checkout/',
+          {
+            items: cartItems.map((item) => ({
+              producto_id: item.id,
+              cantidad: item.quantity,
+            })),
+          },
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          },
+        )
+
+        clearCart()
+        setStep(3)
+      } catch (error: unknown) {
+        const axiosError = error as {
+          response?: { data?: { detail?: string } }
+        }
+        setPaymentError(
+          axiosError.response?.data?.detail ||
+          'No se pudo completar la compra. Verifica disponibilidad e inténtalo de nuevo.',
+        )
+      } finally {
+        setIsSubmitting(false)
+      }
+      return
     }
   }
 
@@ -124,7 +182,7 @@ export default function Checkout() {
                 />
               </div>
 
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
                     Ciudad
@@ -140,31 +198,51 @@ export default function Checkout() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
-                    Estado
+                    Tipo de Vivienda
                   </label>
-                  <input
-                    type="text"
-                    name="state"
-                    value={formData.state}
+                  <select
+                    name="homeType"
+                    value={formData.homeType}
                     onChange={handleChange}
                     className="w-full px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
                     required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
-                    Código Postal
-                  </label>
-                  <input
-                    type="text"
-                    name="zipCode"
-                    value={formData.zipCode}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
-                    required
-                  />
+                  >
+                    <option value="casa">Casa</option>
+                    <option value="apartamento">Apartamento</option>
+                  </select>
                 </div>
               </div>
+
+              {formData.homeType === 'apartamento' && (
+                <div className="grid md:grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
+                      Torre
+                    </label>
+                    <input
+                      type="text"
+                      name="tower"
+                      value={formData.tower}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
+                      required={formData.homeType === 'apartamento'}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
+                      Piso
+                    </label>
+                    <input
+                      type="text"
+                      name="floor"
+                      value={formData.floor}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
+                      required={formData.homeType === 'apartamento'}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -174,19 +252,134 @@ export default function Checkout() {
               <h2 className="text-2xl font-bold text-cocoa-900 dark:text-white mb-6">
                 Información de Pago
               </h2>
-              <p className="text-cocoa-700 dark:text-slate-300 mb-4">
-                En esta sección se integraría con Stripe, PayPal, etc.
-              </p>
-              <div className="bg-cocoa-100 dark:bg-cocoa-700 p-4 rounded-lg">
-                <p className="text-cocoa-900 dark:text-white font-semibold">
-                  Métodos de pago disponibles:
-                </p>
-                <ul className="mt-2 space-y-1 text-cocoa-700 dark:text-slate-300">
-                  <li>• Tarjeta de crédito/débito</li>
-                  <li>• PayPal</li>
-                  <li>• Apple Pay / Google Pay</li>
-                </ul>
+
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
+                  Método de Pago
+                </label>
+                <select
+                  name="paymentMethod"
+                  value={formData.paymentMethod}
+                  onChange={handleChange}
+                  className="w-full md:w-80 px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
+                >
+                  <option value="tarjeta">Tarjeta de crédito/débito</option>
+                  <option value="pse">PSE</option>
+                </select>
               </div>
+
+              {formData.paymentMethod === 'tarjeta' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
+                      Nombre en la Tarjeta
+                    </label>
+                    <input
+                      type="text"
+                      name="cardName"
+                      value={formData.cardName}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
+                      placeholder="Nombre como aparece en la tarjeta"
+                      required={step === 2 && formData.paymentMethod === 'tarjeta'}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
+                      Número de Tarjeta
+                    </label>
+                    <input
+                      type="text"
+                      name="cardNumber"
+                      value={formData.cardNumber}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
+                      placeholder="1234 5678 9012 3456"
+                      required={step === 2 && formData.paymentMethod === 'tarjeta'}
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
+                        Fecha de Expiración
+                      </label>
+                      <input
+                        type="text"
+                        name="cardExpiry"
+                        value={formData.cardExpiry}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
+                        placeholder="MM/AA"
+                        required={step === 2 && formData.paymentMethod === 'tarjeta'}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
+                        CVV
+                      </label>
+                      <input
+                        type="text"
+                        name="cardCvv"
+                        value={formData.cardCvv}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
+                        placeholder="123"
+                        required={step === 2 && formData.paymentMethod === 'tarjeta'}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {formData.paymentMethod === 'pse' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
+                      Banco
+                    </label>
+                    <select
+                      name="pseBank"
+                      value={formData.pseBank}
+                      onChange={handleChange}
+                      className="w-full md:w-96 px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
+                      required={step === 2 && formData.paymentMethod === 'pse'}
+                    >
+                      <option value="">Selecciona un banco</option>
+                      <option value="bancolombia">Bancolombia</option>
+                      <option value="davivienda">Davivienda</option>
+                      <option value="bbva">BBVA</option>
+                      <option value="banco_de_bogota">Banco de Bogota</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
+                      Documento del Titular
+                    </label>
+                    <input
+                      type="text"
+                      name="pseDocument"
+                      value={formData.pseDocument}
+                      onChange={handleChange}
+                      className="w-full md:w-96 px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
+                      placeholder="Cédula o NIT"
+                      required={step === 2 && formData.paymentMethod === 'pse'}
+                    />
+                  </div>
+
+                  <div className="bg-cocoa-100 dark:bg-cocoa-700 p-4 rounded-lg text-sm text-cocoa-700 dark:text-slate-300">
+                    Simulación PSE: al confirmar, se asume que la entidad bancaria aprobó el pago.
+                  </div>
+                </div>
+              )}
+
+              {paymentError && (
+                <div className="mt-6 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {paymentError}
+                </div>
+              )}
             </div>
           )}
 
@@ -225,9 +418,10 @@ export default function Checkout() {
               )}
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="flex-1 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-colors"
               >
-                {step === 2 ? 'Confirmar Pedido' : 'Continuar'}
+                {step === 2 ? (isSubmitting ? 'Procesando compra...' : 'Confirmar Pedido') : 'Continuar'}
               </button>
             </div>
           )}

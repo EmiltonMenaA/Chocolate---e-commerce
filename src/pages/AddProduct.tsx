@@ -258,7 +258,7 @@ export default function AddProduct() {
               type="text" id="marca" name="marca"
               value={formData.marca} onChange={handleChange}
               className="w-full px-4 py-3 border border-cocoa-200 dark:border-cocoa-600 rounded-xl focus:outline-none focus:border-cafe dark:bg-cocoa-700 dark:text-white placeholder-cocoa-400"
-              placeholder="Ej: Chocolat" required
+              placeholder="Ej: Chocolate" required
             />
           </div>
           <div>

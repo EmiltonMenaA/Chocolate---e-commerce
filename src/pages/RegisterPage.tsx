@@ -57,7 +57,7 @@ export default function RegisterPage() {
       <div className="bg-gradient-to-br from-pink-200 to-pink-300 p-8 lg:p-12 flex flex-col justify-between hidden lg:flex">
         <div>
           <h2 className="text-4xl lg:text-5xl font-bold text-cocoa-900 leading-tight mb-4">
-            Únete al mundo de <span className="text-cafe">Chocolat</span>
+            Únete al mundo de <span className="text-cafe">Chocolate</span>
           </h2>
           <p className="text-lg text-cocoa-700 mb-8">
             Experimenta skincare y rituales de belleza premium a tu medida.
@@ -94,7 +94,7 @@ export default function RegisterPage() {
             Crear cuenta
           </h1>
           <p className="text-gray-600 mb-8">
-            Comienza tu viaje de belleza con Chocolat hoy
+            Comienza tu viaje de belleza con Chocolate hoy
           </p>
 
           {error && (

@@ -44,7 +44,7 @@ export default function LoginPage() {
               C
             </div>
             <h2 className="text-4xl lg:text-5xl font-bold leading-tight">
-              The Essence of <span className="text-red-300">Chocolat</span>
+              The Essence of <span className="text-red-300">Chocolate</span>
             </h2>
           </div>
           <p className="text-lg text-white/80">
@@ -135,7 +135,7 @@ export default function LoginPage() {
 
             <div className="text-center text-cocoa-400">
               <p>
-                ¿Nuevo en Chocolat?{' '}
+                ¿Nuevo en Chocolate?{' '}
                 <Link to="/register" className="text-cafe hover:text-orange-400 font-semibold">
                   Crear cuenta
                 </Link>

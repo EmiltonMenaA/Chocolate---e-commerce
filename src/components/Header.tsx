@@ -10,7 +10,7 @@ export default function Header() {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
-  const { cartCount } = useCart()
+  const { cartCount, clearCart } = useCart()
   const { user, isAuthenticated, logout } = useAuth()
 
   const isActive = (path: string) => location.pathname === path
@@ -35,34 +35,37 @@ export default function Header() {
 
   const handleLogout = async () => {
     setShowUserMenu(false)
+    clearCart()
     await logout()
     navigate('/')
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-cocoa-100 dark:border-cocoa-800 px-6 lg:px-20 py-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-8">
+    <header className="sticky top-0 z-50 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-cocoa-100 dark:border-cocoa-800 px-6 lg:px-20 py-4">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-6">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group cursor-pointer">
-          <div className="size-8 bg-cafe rounded-lg flex items-center justify-center text-white font-bold">
-            C
-          </div>
-          <span className="text-xl font-bold text-cocoa-900 dark:text-white">Chocolat</span>
+          <img
+            src="/images/banners/chocolate_beauty_favicon.svg"
+            alt="Chocolate logo"
+            className="brand-logo brand-logo-sm"
+          />
+          <span className="brand-wordmark text-xl text-cocoa-900 dark:text-white">Chocolate</span>
         </Link>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md">
+        <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl">
           <div className="w-full relative">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar productos..."
-              className="w-full px-4 py-2 bg-cocoa-50 dark:bg-cocoa-800 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-cafe dark:text-white text-sm"
+              className="w-full px-5 py-2.5 bg-cocoa-50/80 dark:bg-cocoa-800 border border-cocoa-200 dark:border-cocoa-700 rounded-full focus:outline-none focus:border-cafe dark:text-white text-sm"
             />
             <button
               type="submit"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-cocoa-700 dark:text-slate-300 hover:text-cafe transition-colors"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-cocoa-600 dark:text-slate-300 hover:text-cafe transition-colors"
             >
               <span className="material-symbols-outlined text-sm">search</span>
             </button>

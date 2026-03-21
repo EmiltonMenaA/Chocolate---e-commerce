@@ -1,4 +1,6 @@
 from django.http import HttpRequest, JsonResponse
+from django.db import transaction
+from decimal import Decimal
 from rest_framework import generics, permissions, status
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
@@ -7,7 +9,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import Pedido, PerfilUsuario, Producto
+from .models import DetallePedido, Pedido, PerfilUsuario, Producto
 from .serializers import (
     CustomTokenObtainPairSerializer,
     PedidoResumenSerializer,
@@ -178,5 +180,113 @@ class MisPedidosListView(generics.ListAPIView):
             .filter(usuario=self.request.user)
             .prefetch_related('detalles')
             .order_by('-fecha')
+        )
+
+
+class CheckoutPedidoView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @transaction.atomic
+    def post(self, request) -> Response:
+        items = request.data.get('items')
+        if not isinstance(items, list) or not items:
+            return Response(
+                {'detail': 'Debes enviar al menos un producto para procesar la compra.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        normalized_items: list[dict] = []
+        for item in items:
+            producto_id = str(item.get('producto_id', '')).strip()
+            try:
+                cantidad = int(item.get('cantidad', 0))
+            except (TypeError, ValueError):
+                cantidad = 0
+
+            if not producto_id:
+                return Response(
+                    {'detail': 'Cada item debe incluir producto_id.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if cantidad <= 0:
+                return Response(
+                    {'detail': 'La cantidad de cada producto debe ser mayor a cero.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            normalized_items.append({'producto_id': producto_id, 'cantidad': cantidad})
+
+        product_ids = [item['producto_id'] for item in normalized_items]
+        productos = Producto.objects.select_for_update().filter(id__in=product_ids)
+        productos_map = {str(producto.id): producto for producto in productos}
+
+        if len(productos_map) != len(set(product_ids)):
+            return Response(
+                {'detail': 'Uno o más productos no existen.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        stock_errors = []
+        for item in normalized_items:
+            producto = productos_map[item['producto_id']]
+            if not producto.activo:
+                stock_errors.append(
+                    {
+                        'producto_id': item['producto_id'],
+                        'nombre': producto.nombre,
+                        'detail': 'El producto no está disponible.',
+                    }
+                )
+                continue
+
+            if producto.stock < item['cantidad']:
+                stock_errors.append(
+                    {
+                        'producto_id': item['producto_id'],
+                        'nombre': producto.nombre,
+                        'detail': f'Stock insuficiente. Disponible: {producto.stock}.',
+                    }
+                )
+
+        if stock_errors:
+            return Response(
+                {
+                    'detail': 'No se puede completar la compra por falta de inventario.',
+                    'items': stock_errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        pedido = Pedido.objects.create(
+            usuario=request.user,
+            estado=Pedido.Estado.CONFIRMADO,
+        )
+
+        total = Decimal('0.00')
+        for item in normalized_items:
+            producto = productos_map[item['producto_id']]
+            cantidad = item['cantidad']
+
+            DetallePedido.objects.create(
+                pedido=pedido,
+                producto=producto,
+                cantidad=cantidad,
+                precio_unitario=producto.precio,
+            )
+
+            producto.stock -= cantidad
+            producto.save(update_fields=['stock'])
+            total += producto.precio * cantidad
+
+        pedido.total = total
+        pedido.save(update_fields=['total'])
+
+        return Response(
+            {
+                'id': str(pedido.id),
+                'estado': pedido.estado,
+                'total': f'{pedido.total:.2f}',
+            },
+            status=status.HTTP_201_CREATED,
         )
 

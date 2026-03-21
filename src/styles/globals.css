@@ -6,6 +6,24 @@
   @apply transition-colors duration-200;
 }
 
+@layer components {
+  .brand-logo {
+    @apply object-contain rounded-xl bg-white/95 p-1 shadow-sm ring-1 ring-cocoa-200/80;
+  }
+
+  .brand-logo-sm {
+    @apply w-8 h-8;
+  }
+
+  .brand-logo-md {
+    @apply w-10 h-10;
+  }
+
+  .brand-wordmark {
+    @apply font-bold tracking-tight;
+  }
+}
+
 @keyframes cart-toast-enter {
   0% {
     opacity: 0;

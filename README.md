@@ -1,4 +1,4 @@
-# Chocolat - E-commerce de skincare
+# Chocolate - E-commerce de skincare
 
 Aplicación full stack con frontend en React y backend en Django REST Framework.
 
@@ -20,23 +20,53 @@ Estado actual del proyecto:
 - Base de datos: PostgreSQL 16
 - Infraestructura local: Docker Compose
 
-## Ejecución con Docker
+## Guia rapida para el equipo
 
-1. Levantar servicios
+Esta es la forma recomendada para ejecutar el proyecto completo (frontend + backend + base de datos).
 
-	docker-compose up -d --build
+### Requisitos
 
-2. Verificar servicios
+- Docker Desktop encendido
+- Docker Compose v2 (comando `docker compose`)
+- Git
 
-	Frontend: http://127.0.0.1:3000
+### 1) Clonar y entrar al proyecto
 
-	Backend health: http://127.0.0.1:8000/api/health/
+```bash
+git clone <URL_DEL_REPOSITORIO>
+cd E-commerce\ Chocolate
+```
 
-3. Detener servicios
+### 2) Levantar todo con Docker
 
-	docker-compose down
+```bash
+docker compose up -d --build
+```
 
-## Ejecución local sin Docker
+### 3) Verificar que todo esta arriba
+
+- Frontend: http://127.0.0.1:3000
+- Backend health: http://127.0.0.1:8000/api/health/
+
+Comando de verificacion de contenedores:
+
+```bash
+docker compose ps
+```
+
+### 4) Ver logs (opcional)
+
+```bash
+docker compose logs -f
+```
+
+### 5) Detener servicios
+
+```bash
+docker compose down
+```
+
+## Ejecucion local sin Docker (opcional)
 
 Frontend
 
@@ -66,11 +96,11 @@ Backend
 
 Comando de seed:
 
-	docker-compose exec web python manage.py seed_data
+	docker compose exec web python manage.py seed_data
 
 Con limpieza previa de productos y pedidos:
 
-	docker-compose exec web python manage.py seed_data --reset
+	docker compose exec web python manage.py seed_data --reset
 
 Usuarios de prueba creados por seed:
 
@@ -117,7 +147,7 @@ Productos y pedidos
 - npm run lint
 - npm run preview
 
-## Validación
+## Validacion
 
 Frontend:
 
@@ -125,9 +155,39 @@ Frontend:
 
 Backend:
 
-	docker-compose exec web python manage.py check
+	docker compose exec web python manage.py check
 
-	docker-compose exec web python manage.py test ecommerce.tests -v 1
+	docker compose exec web python manage.py test ecommerce.tests -v 1
+
+## Solucion de problemas comunes
+
+1. Error de Docker API o daemon no encontrado
+
+- Asegura que Docker Desktop este iniciado antes de ejecutar `docker compose up -d --build`.
+
+2. Cambios en frontend que no se reflejan
+
+- Reinicia frontend:
+
+```bash
+docker compose restart frontend
+```
+
+- Luego recarga el navegador con Ctrl+F5.
+
+3. Backend no disponible
+
+- Revisa contenedores:
+
+```bash
+docker compose ps
+```
+
+- Revisa logs del backend:
+
+```bash
+docker compose logs web --tail 200
+```
 
 ## Estructura general
 

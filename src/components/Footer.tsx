@@ -10,10 +10,12 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="size-8 bg-primary rounded-lg flex items-center justify-center font-bold">
-                C
-              </div>
-              <span className="text-xl font-bold">Chocolat</span>
+              <img
+                src="/images/banners/chocolate_beauty_favicon.svg"
+                alt="Chocolate logo"
+                className="brand-logo brand-logo-sm"
+              />
+              <span className="brand-wordmark text-xl">Chocolate</span>
             </div>
             <p className="text-slate-400">
               Productos naturales de lujo para tu cuidado de la piel.
@@ -84,7 +86,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-cocoa-800 pt-8 text-center text-slate-400 space-y-2">
-          <p>&copy; {currentYear} Chocolat. Todos los derechos reservados.</p>
+          <p>&copy; {currentYear} Chocolate. Todos los derechos reservados.</p>
           <p className="text-xs text-slate-500">Version Web: React + Vite | Backend: Django 4</p>
         </div>
       </div>

@@ -58,8 +58,12 @@ export default function TiendaRegister() {
       {/* Left branding */}
       <div className="hidden lg:flex w-5/12 bg-gradient-to-br from-cocoa-800 to-cocoa-900 p-12 flex-col justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-cafe rounded-xl flex items-center justify-center font-bold text-xl text-white">C</div>
-          <span className="text-2xl font-bold text-white">Chocolat</span>
+          <img
+            src="/images/banners/chocolate_beauty_favicon.svg"
+            alt="Chocolate logo"
+            className="brand-logo brand-logo-md"
+          />
+          <span className="brand-wordmark text-2xl text-white">Chocolate</span>
         </div>
         <div>
           <h2 className="text-4xl font-bold text-white mb-4 leading-tight">
@@ -82,7 +86,7 @@ export default function TiendaRegister() {
             ))}
           </div>
         </div>
-        <p className="text-cocoa-500 text-sm">© {new Date().getFullYear()} Chocolat · Programa de Vendedores</p>
+        <p className="text-cocoa-500 text-sm">© {new Date().getFullYear()} Chocolate · Programa de Vendedores</p>
       </div>
 
       {/* Right form */}
@@ -99,8 +103,12 @@ export default function TiendaRegister() {
           </div>
 
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-cafe rounded-xl flex items-center justify-center font-bold text-xl text-white">C</div>
-            <span className="text-2xl font-bold text-white">Chocolat</span>
+            <img
+              src="/images/banners/chocolate_beauty_favicon.svg"
+              alt="Chocolate logo"
+              className="brand-logo brand-logo-md"
+            />
+            <span className="brand-wordmark text-2xl text-white">Chocolate</span>
           </div>
 
           <div className="mb-6">

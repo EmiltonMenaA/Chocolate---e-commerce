@@ -59,7 +59,7 @@ export default function SkinQuiz() {
     <div className="px-6 lg:px-20 py-12">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-4xl font-bold text-cocoa-900 dark:text-white text-center mb-4">
-          Descubre Tu Tipo de Piel
+          Conoces los productos para tu piel
         </h1>
         <p className="text-center text-cocoa-700 dark:text-slate-300 mb-12 text-lg">
           Responde nuestro cuestionario para obtener recomendaciones personalizadas

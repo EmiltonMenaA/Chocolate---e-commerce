@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+const apiTarget = process.env.VITE_API_URL || 'http://127.0.0.1:8000'
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -9,11 +11,11 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8000',
+        target: apiTarget,
         changeOrigin: true,
       },
         '/media': {
-          target: 'http://127.0.0.1:8000',
+          target: apiTarget,
           changeOrigin: true,
         },
     },

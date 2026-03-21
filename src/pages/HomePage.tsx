@@ -84,9 +84,12 @@ export default function HomePage() {
             </div>
             <div className="rounded-xl overflow-hidden">
               <img 
-                src="/images/banners/image.png"
+                src="/images/banners/Icono.jpeg"
                 alt="Productos premium"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = '/images/banners/chocolate_beauty_favicon.svg'
+                }}
               />
             </div>
           </div>
@@ -132,7 +135,7 @@ export default function HomePage() {
 
           {backendStatus === 'online' && featuredProducts.length === 0 && (
             <p className="text-cocoa-500 mt-6">
-              Aún no hay productos cargados. Puedes poblar la base con el comando seed.
+              Aún no hay productos cargados. ¡Vuelve pronto para descubrir nuestras novedades!
             </p>
           )}
 
@@ -151,7 +154,7 @@ export default function HomePage() {
       <section className="px-6 lg:px-20 py-20">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold text-cocoa-900 dark:text-white text-center mb-12">
-            ¿Por qué elegir Chocolat?
+            ¿Por qué elegir Chocolate?
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">

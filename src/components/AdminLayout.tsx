@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useCart } from '../context/CartContext'
 
 const NAV_ITEMS = [
   { to: '/panel/dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -9,10 +10,12 @@ const NAV_ITEMS = [
 
 export default function AdminLayout() {
   const { user, logout } = useAuth()
+  const { clearCart } = useCart()
   const location = useLocation()
   const navigate = useNavigate()
 
   const handleLogout = async () => {
+    clearCart()
     await logout()
     navigate('/panel/login')
   }
@@ -28,11 +31,13 @@ export default function AdminLayout() {
       <aside className="w-64 flex-shrink-0 bg-cocoa-900 text-white flex flex-col shadow-xl">
         {/* Logo */}
         <div className="px-6 py-5 border-b border-cocoa-700 flex items-center gap-3">
-          <div className="w-10 h-10 bg-cafe rounded-xl flex items-center justify-center font-bold text-xl">
-            C
-          </div>
+          <img
+            src="/images/banners/chocolate_beauty_favicon.svg"
+            alt="Chocolate logo"
+            className="brand-logo brand-logo-md"
+          />
           <div>
-            <p className="font-bold text-white text-sm leading-tight">Chocolat</p>
+            <p className="brand-wordmark text-white text-sm leading-tight">Chocolate</p>
             <p className="text-xs text-cocoa-400">Panel de Vendedor</p>
           </div>
         </div>

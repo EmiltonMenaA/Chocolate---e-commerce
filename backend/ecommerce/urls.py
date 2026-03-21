@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
+    CheckoutPedidoView,
     CustomTokenObtainPairView,
     LogoutView,
     MeView,
@@ -27,6 +28,7 @@ urlpatterns = [
     path('productos/', ProductoListCreateView.as_view(), name='producto_list_create'),
     path('productos/<uuid:pk>/', ProductoDetailView.as_view(), name='producto_detail'),
     path('pedidos/mis/', MisPedidosListView.as_view(), name='mis_pedidos'),
+    path('pedidos/checkout/', CheckoutPedidoView.as_view(), name='pedido_checkout'),
     # Panel (vendor-only)
     path('panel/productos/', PanelProductoListView.as_view(), name='panel_productos'),
 ]

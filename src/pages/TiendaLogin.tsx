@@ -37,10 +37,12 @@ export default function TiendaLogin() {
       {/* Left branding panel */}
       <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-cocoa-800 to-cocoa-900 p-12 flex-col justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-cafe rounded-xl flex items-center justify-center font-bold text-xl text-white">
-            C
-          </div>
-          <span className="text-2xl font-bold text-white">Chocolat</span>
+          <img
+            src="/images/banners/chocolate_beauty_favicon.svg"
+            alt="Chocolate logo"
+            className="brand-logo brand-logo-md"
+          />
+          <span className="brand-wordmark text-2xl text-white">Chocolate</span>
         </div>
 
         <div>
@@ -67,7 +69,7 @@ export default function TiendaLogin() {
         </div>
 
         <p className="text-cocoa-500 text-sm">
-          © {new Date().getFullYear()} Chocolat · Panel de Vendedores
+          © {new Date().getFullYear()} Chocolate · Panel de Vendedores
         </p>
       </div>
 
@@ -86,10 +88,12 @@ export default function TiendaLogin() {
 
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-cafe rounded-xl flex items-center justify-center font-bold text-xl text-white">
-              C
-            </div>
-            <span className="text-2xl font-bold text-white">Chocolat</span>
+            <img
+              src="/images/banners/chocolate_beauty_favicon.svg"
+              alt="Chocolate logo"
+              className="brand-logo brand-logo-md"
+            />
+            <span className="brand-wordmark text-2xl text-white">Chocolate</span>
           </div>
 
           <div className="mb-8">
