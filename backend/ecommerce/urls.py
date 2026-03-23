@@ -12,6 +12,8 @@ from .views import (
     ProductoListCreateView,
     RegistroClienteView,
     RegistroTiendaView,
+    ReseñaListCreateView,
+    PedidoDetalladoView,
     health,
 )
 
@@ -31,4 +33,8 @@ urlpatterns = [
     path('pedidos/checkout/', CheckoutPedidoView.as_view(), name='pedido_checkout'),
     # Panel (vendor-only)
     path('panel/productos/', PanelProductoListView.as_view(), name='panel_productos'),
+     # Reseñas
+    path('productos/<uuid:producto_id>/reseñas/', ReseñaListCreateView.as_view(), name='producto_reseñas'),
+    # Historial detallado
+    path('pedidos/<uuid:pk>/', PedidoDetalladoView.as_view(), name='pedido_detallado'),
 ]

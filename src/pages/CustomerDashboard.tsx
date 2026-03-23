@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
-
+import { getPedidoDetallado, type PedidoDetallado } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 
 type Pedido = {
@@ -16,6 +16,8 @@ export default function CustomerDashboard() {
   const [orders, setOrders] = useState<Pedido[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const [pedidoSeleccionado, setPedidoSeleccionado] = useState<PedidoDetallado | null>(null)
+  const [loadingDetalle, setLoadingDetalle] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -56,7 +58,18 @@ export default function CustomerDashboard() {
     }
     return labels[estado] || estado
   }
-
+  const handleVerDetalle = async (pedidoId: string) => {
+    if (!accessToken) return
+    setLoadingDetalle(true)
+    try {
+      const detalle = await getPedidoDetallado(pedidoId, accessToken)
+      setPedidoSeleccionado(detalle)
+    } catch {
+      // silencioso
+    } finally {
+      setLoadingDetalle(false)
+    }
+  }
   return (
     <div className="px-6 lg:px-20 py-12">
       <div className="max-w-7xl mx-auto">
@@ -128,6 +141,9 @@ export default function CustomerDashboard() {
                   <th className="px-6 py-3 text-left font-semibold text-cocoa-900 dark:text-white">
                     Estado
                   </th>
+                  <th className="px-6 py-3 text-left font-semibold text-cocoa-900 dark:text-white">
+                    Detalle
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -180,12 +196,62 @@ export default function CustomerDashboard() {
                         {estadoLabel(order.estado)}
                       </span>
                     </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleVerDetalle(order.id)}
+                        className="text-primary hover:underline text-sm font-semibold"
+                      >
+                        {loadingDetalle ? '...' : 'Ver detalle'}
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </div>
+      {pedidoSeleccionado && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-cocoa-800 rounded-xl p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-cocoa-900 dark:text-white">
+                  Detalle del Pedido
+                </h3>
+                <button
+                  onClick={() => setPedidoSeleccionado(null)}
+                  className="text-cocoa-500 hover:text-cocoa-900 dark:hover:text-white text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+              <p className="text-sm text-cocoa-500 mb-4">
+                #{pedidoSeleccionado.id.slice(0, 8)} — {new Date(pedidoSeleccionado.fecha).toLocaleDateString()}
+              </p>
+              <div className="space-y-4">
+                {pedidoSeleccionado.detalles.map(item => (
+                  <div key={item.producto_id} className="flex items-center gap-4 border-b border-cocoa-100 pb-4">
+                    {item.producto_imagen && (
+                      <img
+                        src={item.producto_imagen}
+                        alt={item.producto_nombre}
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <p className="font-semibold text-cocoa-900 dark:text-white">{item.producto_nombre}</p>
+                      <p className="text-sm text-cocoa-500">{item.cantidad} x ${Number(item.precio_unitario).toFixed(2)}</p>
+                    </div>
+                    <p className="font-bold text-primary">${Number(item.subtotal).toFixed(2)}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 flex justify-between items-center">
+                <span className="font-bold text-cocoa-900 dark:text-white">Total</span>
+                <span className="text-xl font-bold text-primary">${Number(pedidoSeleccionado.total).toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -46,8 +46,11 @@ class Producto(models.Model):
 
     @property
     def calificacion_promedio(self) -> float:
-        # Valor por defecto mientras no exista modulo de resenas.
-        return 0.0
+        reseñas = self.reseñas.all()
+        if not reseñas.exists():
+         return 0.0
+        total = sum(r.calificacion for r in reseñas)
+        return round(total / reseñas.count(), 1)
 
 
 class Carrito(models.Model):
@@ -224,3 +227,29 @@ class PerfilUsuario(models.Model):
     @property
     def es_admin(self) -> bool:
         return self.rol == self.Rol.ADMIN
+    
+
+    
+class Reseña(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    producto = models.ForeignKey(
+        Producto,
+        on_delete=models.CASCADE,
+        related_name='reseñas',
+    )
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='reseñas',
+    )
+    calificacion = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)],
+    )
+    comentario = models.TextField(blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('producto', 'usuario')
+
+    def __str__(self) -> str:
+        return f'Reseña de {self.usuario} para {self.producto.nombre} ({self.calificacion}★)'
