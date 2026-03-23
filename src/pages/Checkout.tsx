@@ -10,6 +10,7 @@ export default function Checkout() {
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [paymentError, setPaymentError] = useState('')
+  const [invoiceUrl, setInvoiceUrl] = useState('')
   const [formData, setFormData] = useState({
     email: '',
     fullName: '',
@@ -59,18 +60,38 @@ export default function Checkout() {
 
       setIsSubmitting(true)
       try {
-        await axios.post(
+        const deliveryAddress = [
+          formData.address,
+          formData.city,
+          formData.homeType === 'apartamento'
+            ? `Torre ${formData.tower || '-'}, Piso ${formData.floor || '-'}`
+            : '',
+        ]
+          .filter(Boolean)
+          .join(', ')
+
+        const response = await axios.post(
           '/api/pedidos/checkout/',
           {
             items: cartItems.map((item) => ({
               producto_id: item.id,
               cantidad: item.quantity,
             })),
+            envio: {
+              direccion_entrega: deliveryAddress,
+            },
+            perfil: {
+              nombre: formData.fullName,
+              telefono: formData.phone,
+              direccion: deliveryAddress,
+            },
           },
           {
             headers: { Authorization: `Bearer ${accessToken}` },
           },
         )
+
+        setInvoiceUrl(response.data?.factura_pdf_url || '')
 
         clearCart()
         setStep(3)
@@ -395,6 +416,16 @@ export default function Checkout() {
               <p className="text-cocoa-700 dark:text-slate-300 mb-6">
                 Tu pedido ha sido procesado correctamente. Recibirás un correo de confirmación pronto.
               </p>
+              {invoiceUrl && (
+                <a
+                  href={invoiceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mb-4 inline-block rounded-lg border-2 border-cocoa-900 px-6 py-2 font-semibold text-cocoa-900 transition-colors hover:bg-cocoa-900 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-cocoa-900"
+                >
+                  Descargar factura PDF
+                </a>
+              )}
               <Link
                 to="/"
                 className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-colors inline-block"

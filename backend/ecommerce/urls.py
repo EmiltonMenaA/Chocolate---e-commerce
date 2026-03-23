@@ -6,6 +6,8 @@ from .views import (
     CustomTokenObtainPairView,
     LogoutView,
     MeView,
+    PanelPedidoEnvioUpdateView,
+    PanelPedidoListView,
     MisPedidosListView,
     PanelProductoListView,
     ProductoDetailView,
@@ -33,7 +35,9 @@ urlpatterns = [
     path('pedidos/checkout/', CheckoutPedidoView.as_view(), name='pedido_checkout'),
     # Panel (vendor-only)
     path('panel/productos/', PanelProductoListView.as_view(), name='panel_productos'),
-     # Reseñas
+    path('panel/pedidos/', PanelPedidoListView.as_view(), name='panel_pedidos'),
+    path('panel/pedidos/<uuid:pk>/envio/', PanelPedidoEnvioUpdateView.as_view(), name='panel_pedido_envio_update'),
+    # Reseñas
     path('productos/<uuid:producto_id>/reseñas/', ReseñaListCreateView.as_view(), name='producto_reseñas'),
     # Historial detallado
     path('pedidos/<uuid:pk>/', PedidoDetalladoView.as_view(), name='pedido_detallado'),
