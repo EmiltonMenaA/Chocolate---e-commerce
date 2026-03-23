@@ -145,6 +145,7 @@ class Pedido(models.Model):
         decimal_places=2,
         default=Decimal('0.00'),
     )
+    factura_pdf = models.FileField(upload_to='invoices/', blank=True, null=True)
 
     def __str__(self) -> str:
         return f'Pedido {self.id} — {self.usuario} ({self.get_estado_display()})'
@@ -169,6 +170,33 @@ class Pedido(models.Model):
         self.total = total
         self.save(update_fields=['total'])
         return total
+
+
+class Envio(models.Model):
+    class Estado(models.TextChoices):
+        PENDIENTE = 'pendiente', 'Pendiente'
+        PREPARANDO = 'preparando', 'Preparando'
+        ENVIADO = 'enviado', 'Enviado'
+        ENTREGADO = 'entregado', 'Entregado'
+        CANCELADO = 'cancelado', 'Cancelado'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    pedido = models.OneToOneField(
+        Pedido,
+        on_delete=models.CASCADE,
+        related_name='envio',
+    )
+    direccion_entrega = models.CharField(max_length=255)
+    fecha_entrega = models.DateField(blank=True, null=True)
+    numero_guia = models.CharField(max_length=80, blank=True, default='')
+    estado = models.CharField(
+        max_length=20,
+        choices=Estado.choices,
+        default=Estado.PENDIENTE,
+    )
+
+    def __str__(self) -> str:
+        return f'Envio {self.id} - {self.get_estado_display()}'
 
 
 class DetallePedido(models.Model):
@@ -211,8 +239,10 @@ class PerfilUsuario(models.Model):
         choices=Rol.choices,
         default=Rol.CLIENTE,
     )
+    nombre = models.CharField(max_length=200, blank=True, default='')
     nombre_tienda = models.CharField(max_length=200, blank=True)
     telefono = models.CharField(max_length=20, blank=True)
+    direccion = models.CharField(max_length=255, blank=True, default='')
 
     def __str__(self) -> str:
         return f'{self.usuario.email} ({self.get_rol_display()})'

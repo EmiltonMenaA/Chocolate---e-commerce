@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext'
 const NAV_ITEMS = [
   { to: '/panel/dashboard', label: 'Dashboard', icon: 'dashboard' },
   { to: '/panel/productos', label: 'Mis Productos', icon: 'inventory_2' },
+  { to: '/panel/pedidos', label: 'Pedidos', icon: 'local_shipping' },
   { to: '/panel/productos/nuevo', label: 'Agregar Producto', icon: 'add_box' },
 ]
 

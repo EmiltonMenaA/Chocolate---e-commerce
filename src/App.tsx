@@ -20,6 +20,7 @@ import FindBoutiquePage from './pages/FindBoutiquePage'
 import CustomerDashboard from './pages/CustomerDashboard'
 import VendorDashboard from './pages/VendorDashboard'
 import AddProduct from './pages/AddProduct'
+import VendorOrders from './pages/VendorOrders'
 
 function App() {
   return (
@@ -77,6 +78,7 @@ function App() {
             >
               <Route path="/panel/dashboard" element={<VendorDashboard />} />
               <Route path="/panel/productos" element={<VendorDashboard />} />
+              <Route path="/panel/pedidos" element={<VendorOrders />} />
               <Route path="/panel/productos/nuevo" element={<AddProduct />} />
               <Route path="/panel/productos/:id/editar" element={<AddProduct />} />
             </Route>

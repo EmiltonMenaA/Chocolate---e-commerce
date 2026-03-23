@@ -40,7 +40,11 @@ class RegistroClienteSerializer(serializers.ModelSerializer):
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', ''),
         )
-        PerfilUsuario.objects.create(usuario=user, rol=PerfilUsuario.Rol.CLIENTE)
+        PerfilUsuario.objects.create(
+            usuario=user,
+            rol=PerfilUsuario.Rol.CLIENTE,
+            nombre=user.get_full_name() or user.email,
+        )
         return user
 
 
@@ -86,6 +90,7 @@ class RegistroTiendaSerializer(serializers.ModelSerializer):
         PerfilUsuario.objects.create(
             usuario=user,
             rol=PerfilUsuario.Rol.TIENDA,
+            nombre=user.get_full_name() or user.email,
             nombre_tienda=nombre_tienda,
             telefono=telefono,
         )
@@ -101,6 +106,8 @@ def _build_user_dict(user: User) -> dict:
         'nombre': user.get_full_name() or user.email,
         'rol': 'cliente',
         'nombre_tienda': '',
+        'telefono': '',
+        'direccion': '',
         'access': str(refresh.access_token),
         'refresh': str(refresh),
     }
@@ -108,6 +115,9 @@ def _build_user_dict(user: User) -> dict:
         perfil = user.perfil
         data['rol'] = perfil.rol
         data['nombre_tienda'] = perfil.nombre_tienda
+        data['nombre'] = perfil.nombre or data['nombre']
+        data['telefono'] = perfil.telefono
+        data['direccion'] = perfil.direccion
     except PerfilUsuario.DoesNotExist:
         pass
     return data
@@ -123,11 +133,16 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'nombre': user.get_full_name() or user.email,
             'rol': 'cliente',
             'nombre_tienda': '',
+            'telefono': '',
+            'direccion': '',
         }
         try:
             perfil = user.perfil
             data['user']['rol'] = perfil.rol
             data['user']['nombre_tienda'] = perfil.nombre_tienda
+            data['user']['nombre'] = perfil.nombre or data['user']['nombre']
+            data['user']['telefono'] = perfil.telefono
+            data['user']['direccion'] = perfil.direccion
         except PerfilUsuario.DoesNotExist:
             pass
         return data
@@ -169,10 +184,20 @@ class ProductoSerializer(serializers.ModelSerializer):
 
 class PedidoResumenSerializer(serializers.ModelSerializer):
     items_count = serializers.SerializerMethodField()
+    factura_pdf_url = serializers.SerializerMethodField()
+    envio = serializers.SerializerMethodField()
 
     class Meta:
         model = Pedido
-        fields = ('id', 'fecha', 'estado', 'total', 'items_count')
+        fields = (
+            'id',
+            'fecha',
+            'estado',
+            'total',
+            'items_count',
+            'factura_pdf_url',
+            'envio',
+        )
 
     def get_items_count(self, obj: Pedido) -> int:
         # Reuse prefetched details when available; fallback to query for safety.
@@ -186,3 +211,72 @@ class PedidoResumenSerializer(serializers.ModelSerializer):
             .get('total')
             or 0
         )
+
+    def get_factura_pdf_url(self, obj: Pedido) -> str | None:
+        return obj.factura_pdf.url if obj.factura_pdf else None
+
+    def get_envio(self, obj: Pedido) -> dict | None:
+        envio = getattr(obj, 'envio', None)
+        if envio is None:
+            return None
+        return {
+            'estado': envio.estado,
+            'direccion_entrega': envio.direccion_entrega,
+            'numero_guia': envio.numero_guia,
+            'fecha_entrega': envio.fecha_entrega.isoformat() if envio.fecha_entrega else None,
+        }
+
+
+class PerfilUsuarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PerfilUsuario
+        fields = ('nombre', 'telefono', 'direccion')
+
+
+class PanelPedidoSerializer(serializers.ModelSerializer):
+    items_count = serializers.SerializerMethodField()
+    cliente_nombre = serializers.SerializerMethodField()
+    cliente_email = serializers.SerializerMethodField()
+    envio = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Pedido
+        fields = (
+            'id',
+            'fecha',
+            'estado',
+            'total',
+            'items_count',
+            'cliente_nombre',
+            'cliente_email',
+            'envio',
+        )
+
+    def get_items_count(self, obj: Pedido) -> int:
+        detalles = getattr(obj, '_prefetched_objects_cache', {}).get('detalles')
+        if detalles is not None:
+            return sum(detalle.cantidad for detalle in detalles)
+        return (
+            DetallePedido.objects
+            .filter(pedido=obj)
+            .aggregate(total=Sum('cantidad'))
+            .get('total')
+            or 0
+        )
+
+    def get_cliente_nombre(self, obj: Pedido) -> str:
+        return obj.usuario.get_full_name() or obj.usuario.email
+
+    def get_cliente_email(self, obj: Pedido) -> str:
+        return obj.usuario.email
+
+    def get_envio(self, obj: Pedido) -> dict | None:
+        envio = getattr(obj, 'envio', None)
+        if envio is None:
+            return None
+        return {
+            'estado': envio.estado,
+            'direccion_entrega': envio.direccion_entrega,
+            'numero_guia': envio.numero_guia,
+            'fecha_entrega': envio.fecha_entrega.isoformat() if envio.fecha_entrega else None,
+        }

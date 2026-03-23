@@ -17,6 +17,8 @@ export type AuthUser = {
   nombre: string
   rol: UserRol
   nombre_tienda: string
+  telefono: string
+  direccion: string
 }
 
 type AuthState = {
@@ -32,6 +34,7 @@ type AuthContextValue = {
   isLoading: boolean
   login: (email: string, password: string) => Promise<AuthUser>
   logout: () => Promise<void>
+  updateUser: (nextUser: AuthUser) => void
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -54,6 +57,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const persist = (user: AuthUser, accessToken: string, refreshToken: string) => {
     const next: AuthState = { user, accessToken, refreshToken }
+    setState(next)
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(next))
+  }
+
+  const updateUser = (nextUser: AuthUser) => {
+    if (!state) return
+    const next: AuthState = { ...state, user: nextUser }
     setState(next)
     localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(next))
   }
@@ -92,6 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         login,
         logout,
+        updateUser,
       }}
     >
       {children}
