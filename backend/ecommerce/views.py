@@ -5,7 +5,9 @@ from datetime import date
 from decimal import Decimal
 from io import BytesIO
 from rest_framework import generics, permissions, status
+from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
@@ -14,15 +16,17 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
-from .models import DetallePedido, Envio, Pedido, PerfilUsuario, Producto
+from .models import DetallePedido, Envio, Pedido, PerfilUsuario, Producto, Reseña
 from .serializers import (
     CustomTokenObtainPairSerializer,
     PanelPedidoSerializer,
+    PedidoDetalladoSerializer,
     PerfilUsuarioSerializer,
     PedidoResumenSerializer,
     ProductoSerializer,
     RegistroClienteSerializer,
     RegistroTiendaSerializer,
+    ReseñaSerializer,
     _build_user_dict,
 )
 
@@ -567,3 +571,37 @@ class CheckoutPedidoView(APIView):
             status=status.HTTP_201_CREATED,
         )
 
+
+class ReseñaListCreateView(ListCreateAPIView):
+    serializer_class = ReseñaSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        producto_id = self.kwargs['producto_id']
+        return Reseña.objects.filter(producto__id=producto_id).select_related('usuario')
+
+    def perform_create(self, serializer):
+        producto_id = self.kwargs['producto_id']
+        producto = Producto.objects.get(id=producto_id)
+
+        # Verificar que el usuario haya comprado el producto.
+        ha_comprado = DetallePedido.objects.filter(
+            pedido__usuario=self.request.user,
+            pedido__estado=Pedido.Estado.CONFIRMADO,
+            producto__id=producto_id,
+        ).exists()
+
+        if not ha_comprado:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Solo puedes reseñar productos que hayas comprado.')
+        serializer.save(producto=producto)
+
+
+class PedidoDetalladoView(RetrieveAPIView):
+    serializer_class = PedidoDetalladoSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Pedido.objects.filter(
+            usuario=self.request.user
+        ).prefetch_related('detalles__producto')
