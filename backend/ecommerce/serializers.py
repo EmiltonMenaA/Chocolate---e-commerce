@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from typing import Any, Dict
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.db import transaction
@@ -23,13 +26,13 @@ class RegistroClienteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Ya existe una cuenta con este email.')
         return value
 
-    def validate(self, data: dict) -> dict:
+    def validate(self, data: Dict):  # type: ignore
         if data['password'] != data['password2']:
             raise serializers.ValidationError({'password2': 'Las contraseñas no coinciden.'})
         return data
 
     @transaction.atomic
-    def create(self, validated_data: dict) -> User:
+    def create(self, validated_data: Dict):  # type: ignore
         validated_data.pop('password2', None)
         password = validated_data.pop('password')
         email = validated_data.pop('email')
@@ -68,13 +71,13 @@ class RegistroTiendaSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Ya existe una cuenta con este email.')
         return value
 
-    def validate(self, data: dict) -> dict:
+    def validate(self, data: Dict):  # type: ignore
         if data['password'] != data['password2']:
             raise serializers.ValidationError({'password2': 'Las contraseñas no coinciden.'})
         return data
 
     @transaction.atomic
-    def create(self, validated_data: dict) -> User:
+    def create(self, validated_data: Dict):  # type: ignore
         validated_data.pop('password2', None)
         password = validated_data.pop('password')
         nombre_tienda = validated_data.pop('nombre_tienda')
@@ -97,8 +100,11 @@ class RegistroTiendaSerializer(serializers.ModelSerializer):
         return user
 
 
-def _build_user_dict(user: User) -> dict:
+def _build_user_dict(user):  # type: ignore[no-untyped-def]
     """Return a plain dict with user info + JWT tokens."""
+    if user is None:
+        raise ValueError("user cannot be None")
+    
     refresh = RefreshToken.for_user(user)
     data = {
         'id': user.id,
@@ -124,9 +130,12 @@ def _build_user_dict(user: User) -> dict:
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs: dict) -> dict:
+    def validate(self, attrs: Dict):  # type: ignore
         data = super().validate(attrs)
         user = self.user
+        if user is None:
+            raise ValueError("user cannot be None")
+        
         data['user'] = {
             'id': user.id,
             'email': user.email,
@@ -167,7 +176,7 @@ class ProductoSerializer(serializers.ModelSerializer):
                 return obj.tienda.get_full_name() or obj.tienda.email
         return ''
 
-    def create(self, validated_data: dict) -> Producto:
+    def create(self, validated_data: "dict[str, Any]") -> "Producto":
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             validated_data['tienda'] = request.user
