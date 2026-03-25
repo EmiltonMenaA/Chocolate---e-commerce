@@ -8,7 +8,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import DetallePedido, Pedido, PerfilUsuario, Producto
+from .models import DetallePedido, Pedido, PerfilUsuario, Producto, Reseña
 
 User = get_user_model()
 
@@ -289,3 +289,48 @@ class PanelPedidoSerializer(serializers.ModelSerializer):
             'numero_guia': envio.numero_guia,
             'fecha_entrega': envio.fecha_entrega.isoformat() if envio.fecha_entrega else None,
         }
+
+
+class ReseñaSerializer(serializers.ModelSerializer):
+    usuario_nombre = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Reseña
+        fields = ('id', 'usuario', 'usuario_nombre', 'calificacion', 'comentario', 'created_at')
+        read_only_fields = ('id', 'usuario', 'usuario_nombre', 'created_at')
+
+    def get_usuario_nombre(self, obj) -> str:
+        return obj.usuario.get_full_name() or obj.usuario.email
+
+    def validate_calificacion(self, value: int) -> int:
+        if value < 1 or value > 5:
+            raise serializers.ValidationError('La calificación debe ser entre 1 y 5.')
+        return value
+
+    def create(self, validated_data: dict):
+        request = self.context.get('request')
+        validated_data['usuario'] = request.user
+        return super().create(validated_data)
+
+
+class DetallePedidoSerializer(serializers.ModelSerializer):
+    producto_nombre = serializers.CharField(source='producto.nombre', read_only=True)
+    producto_imagen = serializers.SerializerMethodField(read_only=True)
+    producto_id = serializers.UUIDField(source='producto.id', read_only=True)
+
+    class Meta:
+        model = DetallePedido
+        fields = ('producto_id', 'producto_nombre', 'producto_imagen', 'cantidad', 'precio_unitario', 'subtotal')
+
+    def get_producto_imagen(self, obj) -> str | None:
+        if obj.producto.imagen:
+            return obj.producto.imagen.url
+        return None
+
+
+class PedidoDetalladoSerializer(serializers.ModelSerializer):
+    detalles = DetallePedidoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Pedido
+        fields = ('id', 'fecha', 'estado', 'total', 'detalles')

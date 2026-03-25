@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
+import { getReseñas, crearReseña, type Reseña } from '../services/api'
 
 import CartFeedbackToast from '../components/CartFeedbackToast'
 import { useCart } from '../context/CartContext'
@@ -10,7 +11,7 @@ export default function ProductDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, accessToken } = useAuth()
   const [product, setProduct] = useState<{
     id: string
     nombre: string
@@ -28,6 +29,39 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1)
   const [showCartFeedback, setShowCartFeedback] = useState(false)
   const { addToCart } = useCart()
+  const [reseñas, setReseñas] = useState<Reseña[]>([])
+  const [calificacion, setCalificacion] = useState(0)
+  const [comentario, setComentario] = useState('')
+  const [reseñaError, setReseñaError] = useState('')
+  const [reseñaExito, setReseñaExito] = useState(false)
+  const [enviandoReseña, setEnviandoReseña] = useState(false)
+
+useEffect(() => {
+  if (!id) return
+  getReseñas(id).then(setReseñas).catch(() => {})
+}, [id])
+
+const handleEnviarReseña = async () => {
+  if (!accessToken) return
+  if (calificacion === 0) {
+    setReseñaError('Selecciona una calificación.')
+    return
+  }
+  setEnviandoReseña(true)
+  setReseñaError('')
+  try {
+    const nueva = await crearReseña(id!, { calificacion, comentario }, accessToken)
+    setReseñas((prev: Reseña[]) => [nueva, ...prev])
+    setCalificacion(0)
+    setComentario('')
+    setReseñaExito(true)
+    setTimeout(() => setReseñaExito(false), 3000)
+  } catch (e: any) {
+    setReseñaError(e.message || 'Error al enviar reseña.')
+  } finally {
+    setEnviandoReseña(false)
+  }
+}  
 
   useEffect(() => {
     let active = true
@@ -202,7 +236,89 @@ export default function ProductDetail() {
             </div>
           </div>
         </div>
+        {/* Sección de Reseñas */}
+        <div className="mt-16">
+          <h2 className="text-3xl font-bold text-cocoa-900 dark:text-white mb-8">
+            Reseñas del Producto
+          </h2>
+
+          {isAuthenticated && (
+            <div className="bg-white dark:bg-cocoa-800 rounded-xl p-6 mb-8">
+              <h3 className="text-xl font-bold text-cocoa-900 dark:text-white mb-4">
+                Deja tu reseña
+              </h3>
+              <div className="flex gap-1 mb-4">
+                {[1, 2, 3, 4, 5].map(star => (
+                  <button
+                    key={star}
+                    onClick={() => setCalificacion(star)}
+                    className={`text-3xl transition-colors ${
+                      star <= calificacion ? 'text-yellow-400' : 'text-cocoa-300'
+                    }`}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+              <textarea
+                value={comentario}
+                onChange={e => setComentario(e.target.value)}
+                placeholder="Escribe tu opinión (opcional)..."
+                rows={3}
+                className="w-full border border-cocoa-200 dark:border-cocoa-600 rounded-lg p-3 text-cocoa-900 dark:text-white dark:bg-cocoa-700 mb-4 resize-none"
+              />
+              {reseñaError && (
+                <p className="text-red-500 text-sm mb-3">{reseñaError}</p>
+              )}
+              {reseñaExito && (
+                <p className="text-green-600 text-sm mb-3">¡Reseña enviada con éxito!</p>
+              )}
+              <button
+                onClick={handleEnviarReseña}
+                disabled={enviandoReseña}
+                className="px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 disabled:opacity-50 transition-colors"
+              >
+                {enviandoReseña ? 'Enviando...' : 'Enviar Reseña'}
+              </button>
+            </div>
+          )}
+
+          {reseñas.length === 0 ? (
+            <p className="text-cocoa-500 text-center py-8">
+              Aún no hay reseñas para este producto.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {reseñas.map(reseña => (
+                <div key={reseña.id} className="bg-white dark:bg-cocoa-800 rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-semibold text-cocoa-900 dark:text-white">
+                      {reseña.usuario_nombre}
+                    </span>
+                    <span className="text-sm text-cocoa-500">
+                      {new Date(reseña.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="flex gap-1 mb-2">
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <span
+                        key={star}
+                        className={`text-xl ${star <= reseña.calificacion ? 'text-yellow-400' : 'text-cocoa-300'}`}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                  {reseña.comentario && (
+                    <p className="text-cocoa-700 dark:text-slate-300">{reseña.comentario}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
 }
+
