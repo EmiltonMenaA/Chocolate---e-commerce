@@ -1,4 +1,4 @@
-﻿[
+[
 {
   "model": "auth.user",
   "fields": {
@@ -214,7 +214,7 @@
   "pk": "03678382-4136-4d5c-b7bf-94f0e51d3a1f",
   "fields": {
     "nombre": "Mascarilla de arcilla",
-    "descripcion": "Experimente poros visiblemente minimizados y oleosidad reducida en solo 10 minutos! Nuestro minimizador de poros est├í cl├¡nicamente validado para brindar resultados inmediatos. Con solo una aplicaci├│n, puede reducir los poros, aclarar la zona T y disminuir la oleosidad para una tez m├ís suave. Formulada con arcilla de caol├¡n, carbonato de calcio y ├│xido de zinc, esta mascarilla que absorbe la grasa refina los poros grandes y combate la piel grasa, dej├índole una tez m├ís suave y refinada. Nuestro minimizador de poros se transforma en una pasta ligera cuando se mezcla con un algod├│n humedecido en agua, lo que facilita su aplicaci├│n para una m├íxima eficacia.",
+    "descripcion": "Experimente poros visiblemente minimizados y oleosidad reducida en solo 10 minutos! Nuestro minimizador de poros está clínicamente validado para brindar resultados inmediatos. Con solo una aplicación, puede reducir los poros, aclarar la zona T y disminuir la oleosidad para una tez más suave. Formulada con arcilla de caolín, carbonato de calcio y óxido de zinc, esta mascarilla que absorbe la grasa refina los poros grandes y combate la piel grasa, dejándole una tez más suave y refinada. Nuestro minimizador de poros se transforma en una pasta ligera cuando se mezcla con un algodón humedecido en agua, lo que facilita su aplicación para una máxima eficacia.",
     "precio": "23.00",
     "stock": 47,
     "marca": "Cromatic",
@@ -231,11 +231,11 @@
   "pk": "0736376b-f40c-42bc-8057-dfc43ab1cbd0",
   "fields": {
     "nombre": "Mascarilla  hidratante matificante",
-    "descripcion": "┬┐ Necesitas matificar e hidratar tu piel grasa ? con revolucionaria tecnolog├¡a en tejido ultrafino de origen vegetal, que act├║a como una bomba de hidrataci├│n en tan solo 15 minutos. Esta mascarilla, que es equivalente a una botella de suero hidratante, esta enriquecida con ACIDO HIALURONICO y TE VERDE de origen natural, con accion masificante. Apta para pieles mixtas a grasas, incluso las sensibles.",
+    "descripcion": "¿ Necesitas matificar e hidratar tu piel grasa ? con revolucionaria tecnología en tejido ultrafino de origen vegetal, que actúa como una bomba de hidratación en tan solo 15 minutos. Esta mascarilla, que es equivalente a una botella de suero hidratante, esta enriquecida con ACIDO HIALURONICO y TE VERDE de origen natural, con accion masificante. Apta para pieles mixtas a grasas, incluso las sensibles.",
     "precio": "3.00",
     "stock": 78,
     "marca": "Garnier",
-    "categoria": "M├íscaras",
+    "categoria": "Máscaras",
     "imagen": "products/IMG_0444.jpeg",
     "activo": true,
     "tienda": [
@@ -248,7 +248,7 @@
   "pk": "10cd9698-2cb4-4aed-8f65-6c99d6a286d7",
   "fields": {
     "nombre": "Crema Anti-Envejecimiento para Ojos",
-    "descripcion": "Tratamiento de ojos que reduce arrugas y bolsas, mejora firmeza y elasticidad con Pro-Xylane y ├ícido hialur├│nico. Piel m├ís suave y joven.",
+    "descripcion": "Tratamiento de ojos que reduce arrugas y bolsas, mejora firmeza y elasticidad con Pro-Xylane y ácido hialurónico. Piel más suave y joven.",
     "precio": "20.00",
     "stock": 20,
     "marca": "L'Oreal Paris",
@@ -265,7 +265,7 @@
   "pk": "16117ee2-c85e-49ed-b6c4-2ef72daf79ba",
   "fields": {
     "nombre": "CONTORNO DE OJOS CON AGUACATE",
-    "descripcion": "Qu├® es: Un contorno de ojos de aguacate que aporta un r├ípido chute de hidrataci├│n. Formulada con aceite de aguacate, betacaroteno y manteca de karit├®, esta cremosa f├│rmula es una favorita de nuestros consumidores\r\n\r\n┬┐Para qu├® es buena?\r\n\r\nHidrata suavemente la delicada zona del contorno de ojos\r\n\r\nF├│rmula muy concentrada que no migra a los ojos\r\n\r\nProbado por oftalm├│logos y dermat├│logos para garantizar su seguridad\r\n\r\nPara todos los tipos de piel, incluidas las pieles sensibles",
+    "descripcion": "Qué es: Un contorno de ojos de aguacate que aporta un rápido chute de hidratación. Formulada con aceite de aguacate, betacaroteno y manteca de karité, esta cremosa fórmula es una favorita de nuestros consumidores\r\n\r\n¿Para qué es buena?\r\n\r\nHidrata suavemente la delicada zona del contorno de ojos\r\n\r\nFórmula muy concentrada que no migra a los ojos\r\n\r\nProbado por oftalmólogos y dermatólogos para garantizar su seguridad\r\n\r\nPara todos los tipos de piel, incluidas las pieles sensibles",
     "precio": "280000.00",
     "stock": 520,
     "marca": "THE KIEHL'S",
@@ -282,7 +282,7 @@
   "pk": "1c520bd0-a36d-42a9-8380-cbbc8f20166e",
   "fields": {
     "nombre": "CLEAN IT ZERO BANILA CO",
-    "descripcion": "┬┐Qu├® es? Clean it Zero 3-in-1 Cleansing Balm Original es un b├ílsamo limpiador hipoalerg├®nico que se transforma de una textura s├│lida a un aceite suave cuando se aplica sobre la piel. Desarrollado para eliminar incluso el maquillaje resistente al agua y todas las impurezas de tu piel en un solo paso. La tecnolog├¡a Zero Balance limpia profundamente sin da├▒ar tu piel, dej├índola hidratada y fresca.\r\n\r\nEste maravilloso b├ílsamo disuelve el maquillaje y el sebo facial endurecido, arrastrando las impurezas de la piel de una manera gentil y respetuosa con el PH de nuestra piel y su barrera protectora (manto ├ícido).",
+    "descripcion": "¿Qué es? Clean it Zero 3-in-1 Cleansing Balm Original es un bálsamo limpiador hipoalergénico que se transforma de una textura sólida a un aceite suave cuando se aplica sobre la piel. Desarrollado para eliminar incluso el maquillaje resistente al agua y todas las impurezas de tu piel en un solo paso. La tecnología Zero Balance limpia profundamente sin dañar tu piel, dejándola hidratada y fresca.\r\n\r\nEste maravilloso bálsamo disuelve el maquillaje y el sebo facial endurecido, arrastrando las impurezas de la piel de una manera gentil y respetuosa con el PH de nuestra piel y su barrera protectora (manto ácido).",
     "precio": "160000.00",
     "stock": 450,
     "marca": "Banila Co",
@@ -298,12 +298,12 @@
   "model": "ecommerce.producto",
   "pk": "227531a5-a270-4b7d-bad2-c4566564dbb9",
   "fields": {
-    "nombre": "Caffeine reset reinicio de cafe├¡na",
-    "descripcion": "Mascarilla facial con cafe├¡na que despierta la piel, reduce la hinchaz├│n y deja el rostro m├ís firme y fresco en minutos. Hidrata y aporta luminosidad duradera. Tama├▒o: 50 ml.",
+    "nombre": "Caffeine reset reinicio de cafeína",
+    "descripcion": "Mascarilla facial con cafeína que despierta la piel, reduce la hinchazón y deja el rostro más firme y fresco en minutos. Hidrata y aporta luminosidad duradera. Tamaño: 50 ml.",
     "precio": "30.00",
     "stock": 60,
     "marca": "Rhode",
-    "categoria": "M├íscaras",
+    "categoria": "Máscaras",
     "imagen": "products/Captura_de_pantalla_2026-03-24_215119.png",
     "activo": true,
     "tienda": [
@@ -316,7 +316,7 @@
   "pk": "25844b32-188a-4384-89cd-46e189285c44",
   "fields": {
     "nombre": "CERAVE Facial Moisturizing Lotion PM",
-    "descripcion": "CeraVe PM Facial Moisturizer est├í formulada con niacinamida, ├ícido hialur├│nico y tres ceramidas esenciales y utiliza nuestra tecnolog├¡a MVE para proporcionar un flujo constante de hidrataci├│n muy necesario durante toda la noche y ayudar a restaurar la barrera cut├ínea.\r\nIdeal para: Todo tipo de piel\r\nAyuda con: Hidrataci├│n",
+    "descripcion": "CeraVe PM Facial Moisturizer está formulada con niacinamida, ácido hialurónico y tres ceramidas esenciales y utiliza nuestra tecnología MVE para proporcionar un flujo constante de hidratación muy necesario durante toda la noche y ayudar a restaurar la barrera cutánea.\r\nIdeal para: Todo tipo de piel\r\nAyuda con: Hidratación",
     "precio": "89000.00",
     "stock": 1500,
     "marca": "CeraVe",
@@ -333,11 +333,11 @@
   "pk": "2e03f29f-0df2-4141-a73b-ebd43953f214",
   "fields": {
     "nombre": "glazing milk",
-    "descripcion": "Paso esencial: emulsi├│n nutritiva tipo leche que hidrata, ilumina y fortalece la barrera cut├ínea.",
+    "descripcion": "Paso esencial: emulsión nutritiva tipo leche que hidrata, ilumina y fortalece la barrera cutánea.",
     "precio": "15.00",
     "stock": 60,
     "marca": "Rhode",
-    "categoria": "T├│nicos",
+    "categoria": "Tónicos",
     "imagen": "products/Captura_de_pantalla_2026-03-24_215356.png",
     "activo": true,
     "tienda": [
@@ -349,12 +349,12 @@
   "model": "ecommerce.producto",
   "pk": "398dd805-c4d1-434e-970c-38c619b87335",
   "fields": {
-    "nombre": "├ücido Glic├│lico 7% Toning Solution",
-    "descripcion": "Una soluci├│n tonificante exfoliante con 7% de ├ícido glic├│lico, amino├ícidos, aloe vera, ginseng y baya de Tasmania.\r\n\r\nEsta soluci├│n tonificante al 7% ofrece una exfoliaci├│n suave para mejorar la luminosidad de la piel y una claridad visible. La f├│rmula tambi├®n mejora la apariencia de la textura de la piel con el uso continuo.\r\n\r\n\r\n--\r\nEsta f├│rmula contiene un derivado de la pimienta de Tasmania estudiado para ayudar a reducir la irritaci├│n asociada con el uso de ├ícido. La f├│rmula se ve reforzada con la inclusi├│n de ra├¡z de ginseng y aloe vera para obtener un brillo visible y beneficios calmantes.",
+    "nombre": "Ácido Glicólico 7% Toning Solution",
+    "descripcion": "Una solución tonificante exfoliante con 7% de ácido glicólico, aminoácidos, aloe vera, ginseng y baya de Tasmania.\r\n\r\nEsta solución tonificante al 7% ofrece una exfoliación suave para mejorar la luminosidad de la piel y una claridad visible. La fórmula también mejora la apariencia de la textura de la piel con el uso continuo.\r\n\r\n\r\n--\r\nEsta fórmula contiene un derivado de la pimienta de Tasmania estudiado para ayudar a reducir la irritación asociada con el uso de ácido. La fórmula se ve reforzada con la inclusión de raíz de ginseng y aloe vera para obtener un brillo visible y beneficios calmantes.",
     "precio": "135000.00",
     "stock": 900,
     "marca": "The ordinary",
-    "categoria": "T├│nicos",
+    "categoria": "Tónicos",
     "imagen": "products/GlycolicAcid7_ToningSolution-TheOrdinary_1024x1024.webp",
     "activo": true,
     "tienda": [
@@ -367,7 +367,7 @@
   "pk": "43053054-1a8c-4057-a743-2b4bb7268037",
   "fields": {
     "nombre": "Protector solar facial",
-    "descripcion": "protector solar facial tintado transparente UV es un protector solar sin aceite fabricado con ├│xido de zinc. Este protector solar facial te├▒ido SPF 46 es ligero y ayuda a calmar y proteger los tipos de piel sensible propensos al acn├®, la ros├ícea y la decoloraci├│n.",
+    "descripcion": "protector solar facial tintado transparente UV es un protector solar sin aceite fabricado con óxido de zinc. Este protector solar facial teñido SPF 46 es ligero y ayuda a calmar y proteger los tipos de piel sensible propensos al acné, la rosácea y la decoloración.",
     "precio": "4.95",
     "stock": 25,
     "marca": "EltaMD UV",
@@ -384,7 +384,7 @@
   "pk": "46b338a0-7f5e-4a03-b78f-d280ef4341bd",
   "fields": {
     "nombre": "Protector solar",
-    "descripcion": "El protector solar en barra de Tocobo brinda una potente defensa contra los da├▒os causados por los rayos UVA y UVB. Adem├ís, est├í enriquecido con extractos naturales como de algod├│n y aloe vera que aportan propiedades antioxidantes y calmantes para proteger la piel y combatir los efectos negativos del sol, promoviendo una piel saludable y radiante.",
+    "descripcion": "El protector solar en barra de Tocobo brinda una potente defensa contra los daños causados por los rayos UVA y UVB. Además, está enriquecido con extractos naturales como de algodón y aloe vera que aportan propiedades antioxidantes y calmantes para proteger la piel y combatir los efectos negativos del sol, promoviendo una piel saludable y radiante.",
     "precio": "20.00",
     "stock": 48,
     "marca": "Harumi",
@@ -401,7 +401,7 @@
   "pk": "46e5e250-c766-40de-8cf4-c8d5326d62b4",
   "fields": {
     "nombre": "The nourishing lip layer La capa nutritiva de labios",
-    "descripcion": "Peptide Lip Treatment in Strawberry Glaze has joined the rhode lineup forever. Originally launched in 2023, it was one of your favorite limited edition Peptide Lip Treatments that smells like a fresh strawberry glazed donut. Our nourishing formula hydrates and replenishes lips while leaving a glossy, high-shine finish. Size: 10ml / .3 fl oz.\r\n\r\nThe complete collection is now available in our improved formula. Same nourishing gloss you know and love, with a lasting smooth texture.\r\nEl tratamiento de labios con p├®ptidos en Strawberry Glaze se ha unido para siempre a la gama de Rhode. Lanzado originalmente en 2023, era uno de tus tratamientos labiales de edici├│n limitada favoritos que huele a un donut fresco glaseado con fresa. Nuestra f├│rmula nutritiva hidrata y repone los labios mientras deja un acabado brillante y de alto resplandor. Tama├▒o: 10ml / 0,3 fl oz. La colecci├│n completa ya est├í disponible en nuestra f├│rmula mejorada. El mismo brillo nutritivo que conoces y te encanta, con una textura suave y duradera",
+    "descripcion": "Peptide Lip Treatment in Strawberry Glaze has joined the rhode lineup forever. Originally launched in 2023, it was one of your favorite limited edition Peptide Lip Treatments that smells like a fresh strawberry glazed donut. Our nourishing formula hydrates and replenishes lips while leaving a glossy, high-shine finish. Size: 10ml / .3 fl oz.\r\n\r\nThe complete collection is now available in our improved formula. Same nourishing gloss you know and love, with a lasting smooth texture.\r\nEl tratamiento de labios con péptidos en Strawberry Glaze se ha unido para siempre a la gama de Rhode. Lanzado originalmente en 2023, era uno de tus tratamientos labiales de edición limitada favoritos que huele a un donut fresco glaseado con fresa. Nuestra fórmula nutritiva hidrata y repone los labios mientras deja un acabado brillante y de alto resplandor. Tamaño: 10ml / 0,3 fl oz. La colección completa ya está disponible en nuestra fórmula mejorada. El mismo brillo nutritivo que conoces y te encanta, con una textura suave y duradera",
     "precio": "40.00",
     "stock": 50,
     "marca": "Rhode",
@@ -417,12 +417,12 @@
   "model": "ecommerce.producto",
   "pk": "4764142f-4ef3-424d-9a7e-dd6102b42837",
   "fields": {
-    "nombre": "├ücido hialur├│nico 2% + B5 30ml",
-    "descripcion": "├ücido hialur├│nico 2% + B5 30ml - The Ordinary",
+    "nombre": "Ácido hialurónico 2% + B5 30ml",
+    "descripcion": "Ácido hialurónico 2% + B5 30ml - The Ordinary",
     "precio": "69000.00",
     "stock": 1000,
     "marca": "The ordinary",
-    "categoria": "T├│nicos",
+    "categoria": "Tónicos",
     "imagen": "products/Hyaluronic-acid2_1024x1024.webp",
     "activo": true,
     "tienda": [
@@ -434,8 +434,8 @@
   "model": "ecommerce.producto",
   "pk": "4d73f455-9510-4094-8307-318a5e2851c1",
   "fields": {
-    "nombre": "Milky bif├ísico",
-    "descripcion": "Milky Rose, desmaquillante bif├ísico formulado especialmente para cuidar la delicada piel del rostro. Perfecto para desmaquillar cara, ojos y labios. H",
+    "nombre": "Milky bifásico",
+    "descripcion": "Milky Rose, desmaquillante bifásico formulado especialmente para cuidar la delicada piel del rostro. Perfecto para desmaquillar cara, ojos y labios. H",
     "precio": "7.00",
     "stock": 30,
     "marca": "Montoc",
@@ -452,11 +452,11 @@
   "pk": "5460b56e-6177-43ae-8ae0-3e6334a6776e",
   "fields": {
     "nombre": "Glazing Milk Esencia Facial con Ceramidas (124 ml)",
-    "descripcion": "Descubre la esencia lechosa m├ís ic├│nica del momento. Rhode Glazing Milk es el paso esencial en tu rutina de skincare: una textura ligera y cremosa que prepara, hidrata y protege, dej├índote ese efecto glow fresco y uniforme que tanto amamos en una sola aplicaci├│n.\r\n\r\nFormulada con ceramidas reparadoras, vitamina E antioxidante y un complejo mineral rico en magnesio, zinc y cobre, esta esencia fortalece visiblemente la barrera cut├ínea, reduce el enrojecimiento y deja la piel jugosa, luminosa y calmada durante todo el d├¡a.",
+    "descripcion": "Descubre la esencia lechosa más icónica del momento. Rhode Glazing Milk es el paso esencial en tu rutina de skincare: una textura ligera y cremosa que prepara, hidrata y protege, dejándote ese efecto glow fresco y uniforme que tanto amamos en una sola aplicación.\r\n\r\nFormulada con ceramidas reparadoras, vitamina E antioxidante y un complejo mineral rico en magnesio, zinc y cobre, esta esencia fortalece visiblemente la barrera cutánea, reduce el enrojecimiento y deja la piel jugosa, luminosa y calmada durante todo el día.",
     "precio": "245000.00",
     "stock": 675,
     "marca": "Rhode",
-    "categoria": "T├│nicos",
+    "categoria": "Tónicos",
     "imagen": "products/s2898419-main-zoom_1024x1024.webp",
     "activo": true,
     "tienda": [
@@ -469,11 +469,11 @@
   "pk": "5eae1657-77fb-45bf-a07e-edeb05f619d3",
   "fields": {
     "nombre": "Niacinamida 10% + Zinc 1% 30ml - The Ordinary",
-    "descripcion": "Es un potente s├®rum con Vitamina B3 con el que ganar├ís tu lucha contra el acn├®. Con ├®l, combatir├ís de ra├¡z los s├¡ntomas m├ís comunes previniendo los brotes acneicos, minimizando los poros y regulando la producci├│n del sebo.Una f├│rmula de alta concentraci├│n de vitaminas y minerales con un 10% de Niacinamida pura y 1% de Zinc PCA.\r\n\r\nLa Niacinamida, entre sus m├║ltiples maravillas, reduce los poros dilatados, elimina las marcas del acn├®, previene nuevos brotes e iguala el tono de la piel. Y el Zinc, tiene un poder antioxidante, porque regula las gl├índulas seb├íceas y porque ayuda a cicatrizar el tejido.\r\n\r\nLa Niacinamida (vitamina B3) en una concentraci├│n del 10 est├í respaldada en la f├│rmula por la sal de zinc del ├ícido pirrolidona carbox├¡lico para equilibrar los aspectos visibles de la actividad del sebo.",
+    "descripcion": "Es un potente sérum con Vitamina B3 con el que ganarás tu lucha contra el acné. Con él, combatirás de raíz los síntomas más comunes previniendo los brotes acneicos, minimizando los poros y regulando la producción del sebo.Una fórmula de alta concentración de vitaminas y minerales con un 10% de Niacinamida pura y 1% de Zinc PCA.\r\n\r\nLa Niacinamida, entre sus múltiples maravillas, reduce los poros dilatados, elimina las marcas del acné, previene nuevos brotes e iguala el tono de la piel. Y el Zinc, tiene un poder antioxidante, porque regula las glándulas sebáceas y porque ayuda a cicatrizar el tejido.\r\n\r\nLa Niacinamida (vitamina B3) en una concentración del 10 está respaldada en la fórmula por la sal de zinc del ácido pirrolidona carboxílico para equilibrar los aspectos visibles de la actividad del sebo.",
     "precio": "79000.00",
     "stock": 1000,
     "marca": "The ordinary",
-    "categoria": "T├│nicos",
+    "categoria": "Tónicos",
     "imagen": "products/Niacinamide_1024x1024.webp",
     "activo": true,
     "tienda": [
@@ -486,7 +486,7 @@
   "pk": "6fa7d1a6-7ef4-4fde-99cd-ea22e6b8f304",
   "fields": {
     "nombre": "Crema aclarante",
-    "descripcion": "Aplicar una o dos veces al d├¡a en las ├íreas afectadas (rodillas, codos, axilas, muslos, ingle) y ├íreas ├¡ntimas externas. El producto se puede usar directamente despu├®s de depilarse o afeitarse para ayudar a prevenir el enrojecimiento y las diferencias en el color de la piel. Solo uso externo.",
+    "descripcion": "Aplicar una o dos veces al día en las áreas afectadas (rodillas, codos, axilas, muslos, ingle) y áreas íntimas externas. El producto se puede usar directamente después de depilarse o afeitarse para ayudar a prevenir el enrojecimiento y las diferencias en el color de la piel. Solo uso externo.",
     "precio": "6.00",
     "stock": 50,
     "marca": "Bioderma",
@@ -503,7 +503,7 @@
   "pk": "90527265-3439-49d2-8e11-9764b420b6b4",
   "fields": {
     "nombre": "Crema Facial de Retinol",
-    "descripcion": "Crema Facial de Retinol antiarrugas antienvejecimiento hidratante ├ícido hialur├│nico vitamina C crema Facial cuidado de la piel cremas blanqueadoras faciales",
+    "descripcion": "Crema Facial de Retinol antiarrugas antienvejecimiento hidratante ácido hialurónico vitamina C crema Facial cuidado de la piel cremas blanqueadoras faciales",
     "precio": "6.98",
     "stock": 100,
     "marca": "CLAFACE",
@@ -536,8 +536,8 @@
   "model": "ecommerce.producto",
   "pk": "aec20067-5e2f-4072-a748-01667c728b60",
   "fields": {
-    "nombre": "pineapple refresh refresco de pi├▒a",
-    "descripcion": "Limpiador diario b├ílsamo a espuma que elimina SPF y maquillaje sin resecar. Deja la piel limpia, suave e hidratada.",
+    "nombre": "pineapple refresh refresco de piña",
+    "descripcion": "Limpiador diario bálsamo a espuma que elimina SPF y maquillaje sin resecar. Deja la piel limpia, suave e hidratada.",
     "precio": "10.00",
     "stock": 60,
     "marca": "Rhode",
@@ -554,7 +554,7 @@
   "pk": "c1d397cd-5a86-401b-8541-9be15a67245e",
   "fields": {
     "nombre": "Primer para rostro",
-    "descripcion": "El primer es un producto de maquillaje que sirve para darle a tu piel un aspecto aterciopelado, rellenando poros y matificando el rostro. Tambi├®n le da larga duraci├│n a tus looks y es ideal para todo tipo de piel.",
+    "descripcion": "El primer es un producto de maquillaje que sirve para darle a tu piel un aspecto aterciopelado, rellenando poros y matificando el rostro. También le da larga duración a tus looks y es ideal para todo tipo de piel.",
     "precio": "13.00",
     "stock": 60,
     "marca": "Atenea",
@@ -571,7 +571,7 @@
   "pk": "cc934974-b1da-4379-880b-d6714bfa7cbc",
   "fields": {
     "nombre": "Mini Glazed Skincare Essentials Kit",
-    "descripcion": "Descubre la rutina completa de Hailey Bieber en versi├│n mini.\r\nUn set con los cuatro productos esenciales de Rhode, dise├▒ados para lograr esa piel glazed, luminosa y saludable que amamos. ­ƒÆº­ƒñì\r\n\r\n­ƒî┐ Tipo de piel: Normal, seca, mixta y grasa.\r\n­ƒÆ½ Preocupaciones: Sequedad, opacidad y enrojecimiento.\r\n\r\nContiene:\r\n\r\n­ƒº╝ Pineapple Refresh Cleanser (40ml) ÔÇö limpia suavemente mientras renueva la textura con enzimas de pi├▒a.\r\n\r\n­ƒì╝ Glazing Milk (65ml) ÔÇö una loci├│n ligera con ceramidas que hidrata y fortalece la barrera cut├ínea.\r\n\r\n­ƒÆº Peptide Glazing Fluid (15ml) ÔÇö el suero ic├│nico con niacinamida que deja la piel radiante y fresca.\r\n\r\n­ƒ¬× Barrier Restore Cream (30ml) ÔÇö crema nutritiva con p├®ptidos que suaviza y rellena visiblemente la piel.\r\n\r\n­ƒî▒ Vegano y libre de crueldad animal.\r\n\r\n­ƒÆû Por qu├® lo amar├ís:\r\nCada f├│rmula trabaja en sinergia para hidratar, calmar e iluminar tu piel desde el primer uso. Ideal para viajar o para probar la rutina m├ís viral del momento.\r\n\r\n­ƒôè Resultados cl├¡nicos:\r\nÔ£ö´©Å 100% not├│ una limpieza profunda y sin resecar\r\nÔ£ö´©Å 97% vio su piel m├ís luminosa\r\nÔ£ö´©Å 92% sinti├│ hidrataci├│n instant├ínea\r\nÔ£ö´©Å 95% afirm├│ que su piel se ve├¡a m├ís saludable",
+    "descripcion": "Descubre la rutina completa de Hailey Bieber en versión mini.\r\nUn set con los cuatro productos esenciales de Rhode, diseñados para lograr esa piel glazed, luminosa y saludable que amamos. 💧🤍\r\n\r\n🌿 Tipo de piel: Normal, seca, mixta y grasa.\r\n💫 Preocupaciones: Sequedad, opacidad y enrojecimiento.\r\n\r\nContiene:\r\n\r\n🧼 Pineapple Refresh Cleanser (40ml) — limpia suavemente mientras renueva la textura con enzimas de piña.\r\n\r\n🍼 Glazing Milk (65ml) — una loción ligera con ceramidas que hidrata y fortalece la barrera cutánea.\r\n\r\n💧 Peptide Glazing Fluid (15ml) — el suero icónico con niacinamida que deja la piel radiante y fresca.\r\n\r\n🪞 Barrier Restore Cream (30ml) — crema nutritiva con péptidos que suaviza y rellena visiblemente la piel.\r\n\r\n🌱 Vegano y libre de crueldad animal.\r\n\r\n💖 Por qué lo amarás:\r\nCada fórmula trabaja en sinergia para hidratar, calmar e iluminar tu piel desde el primer uso. Ideal para viajar o para probar la rutina más viral del momento.\r\n\r\n📊 Resultados clínicos:\r\n✔️ 100% notó una limpieza profunda y sin resecar\r\n✔️ 97% vio su piel más luminosa\r\n✔️ 92% sintió hidratación instantánea\r\n✔️ 95% afirmó que su piel se veía más saludable",
     "precio": "447000.00",
     "stock": 343,
     "marca": "Rhode",
@@ -588,7 +588,7 @@
   "pk": "d1cb4273-77a8-4b6d-ab53-e32d75efe5b1",
   "fields": {
     "nombre": "essential drip mini lip oil Aceite Labial Esencial Drip Mini",
-    "descripcion": "Brillo labial con color ligero, aroma irresistible y acabado ultra glossy. Hidrata como aceite sin sensaci├│n pegajosa.",
+    "descripcion": "Brillo labial con color ligero, aroma irresistible y acabado ultra glossy. Hidrata como aceite sin sensación pegajosa.",
     "precio": "10.00",
     "stock": 160,
     "marca": "Rem beauty",
@@ -605,7 +605,7 @@
   "pk": "d2d71f6a-e2ea-42e2-bafc-55643358e927",
   "fields": {
     "nombre": "Contorno de ojos",
-    "descripcion": "Crema de ojos hidratante para ojeras e hinchaz├│n.\r\nLa delicada piel alrededor de los ojos puede ser propensa a sufrir hinchaz├│n, ojeras y otros signos visibles de fatiga. Agregar una crema humectante para los ojos a su rutina diaria de cuidado de la piel puede ayudar a hidratar, iluminar y suavizar el ├írea debajo de los ojos.",
+    "descripcion": "Crema de ojos hidratante para ojeras e hinchazón.\r\nLa delicada piel alrededor de los ojos puede ser propensa a sufrir hinchazón, ojeras y otros signos visibles de fatiga. Agregar una crema humectante para los ojos a su rutina diaria de cuidado de la piel puede ayudar a hidratar, iluminar y suavizar el área debajo de los ojos.",
     "precio": "500.00",
     "stock": 50,
     "marca": "Cerave",
@@ -621,8 +621,8 @@
   "model": "ecommerce.producto",
   "pk": "d878f3a2-2712-43c8-a094-fe3af520d56e",
   "fields": {
-    "nombre": "Collagen Niacinamide Jelly Cream ÔÇô Medicube (50 ml)",
-    "descripcion": "La Collagen Niacinamide Jelly Cream de Medicube es una crema en textura gelatina transparente que combina lo mejor de la ciencia coreana con el lujo cosm├®tico. Su f├│rmula avanzada hidrata, reafirma y suaviza la piel mientras mejora visiblemente el contorno facial y revela un efecto glow tipo ÔÇ£Korean Glass SkinÔÇØ desde la primera semana de uso.\r\n\r\n­ƒî┐ Ingredientes estrella:\r\nCol├ígeno hidrolizado liofilizado: de bajo peso molecular, mejora elasticidad y firmeza con absorci├│n profunda.\r\n\r\nNiacinamida (Vitamina B3): refuerza la barrera cut├ínea, mejora textura y tono.\r\n\r\nEscualano vegetal: suaviza y evita la p├®rdida de hidrataci├│n.\r\n\r\nElastina hidrolizada: promueve una piel flexible y radiante.\r\n\r\n­ƒÆº Beneficios:\r\nAumenta la hidrataci├│n y el volumen de la piel\r\n\r\nMejora contornos faciales y reduce la flacidez\r\n\r\nAcabado luminoso, suave y tenso\r\n\r\nTextura gelatinosa y ligera, ideal para todo tipo de piel\r\n\r\nF├│rmula con pH equilibrado | Sin siliconas ni colorantes artificiales\r\n\r\n­ƒòù Modo de uso:\r\nAM: Apl├¡cala despu├®s de tus sueros y antes del maquillaje. Masajea hasta absorci├│n total.\r\nPM: Aplica una cantidad generosa despu├®s de tu limpieza facial, evitando el contorno de ojos y labios.",
+    "nombre": "Collagen Niacinamide Jelly Cream – Medicube (50 ml)",
+    "descripcion": "La Collagen Niacinamide Jelly Cream de Medicube es una crema en textura gelatina transparente que combina lo mejor de la ciencia coreana con el lujo cosmético. Su fórmula avanzada hidrata, reafirma y suaviza la piel mientras mejora visiblemente el contorno facial y revela un efecto glow tipo “Korean Glass Skin” desde la primera semana de uso.\r\n\r\n🌿 Ingredientes estrella:\r\nColágeno hidrolizado liofilizado: de bajo peso molecular, mejora elasticidad y firmeza con absorción profunda.\r\n\r\nNiacinamida (Vitamina B3): refuerza la barrera cutánea, mejora textura y tono.\r\n\r\nEscualano vegetal: suaviza y evita la pérdida de hidratación.\r\n\r\nElastina hidrolizada: promueve una piel flexible y radiante.\r\n\r\n💧 Beneficios:\r\nAumenta la hidratación y el volumen de la piel\r\n\r\nMejora contornos faciales y reduce la flacidez\r\n\r\nAcabado luminoso, suave y tenso\r\n\r\nTextura gelatinosa y ligera, ideal para todo tipo de piel\r\n\r\nFórmula con pH equilibrado | Sin siliconas ni colorantes artificiales\r\n\r\n🕗 Modo de uso:\r\nAM: Aplícala después de tus sueros y antes del maquillaje. Masajea hasta absorción total.\r\nPM: Aplica una cantidad generosa después de tu limpieza facial, evitando el contorno de ojos y labios.",
     "precio": "175000.00",
     "stock": 1200,
     "marca": "Medicube",
@@ -638,12 +638,12 @@
   "model": "ecommerce.producto",
   "pk": "da70e82d-32a0-4757-ab7e-01a8c1935539",
   "fields": {
-    "nombre": "T├│nico anti- imperfecciones",
-    "descripcion": "El Kit Cuidado Dual LB es tu soluci├│n integral para sentirte impecable y segura en todo momento. Este d├║o profesional combina dos tratamientos especializados que trabajan en las ├íreas m├ís importantes de tu cuidado personal: rostro y zona ├¡ntima.",
+    "nombre": "Tónico anti- imperfecciones",
+    "descripcion": "El Kit Cuidado Dual LB es tu solución integral para sentirte impecable y segura en todo momento. Este dúo profesional combina dos tratamientos especializados que trabajan en las áreas más importantes de tu cuidado personal: rostro y zona íntima.",
     "precio": "21.00",
     "stock": 34,
     "marca": "Ibsas",
-    "categoria": "T├│nicos",
+    "categoria": "Tónicos",
     "imagen": "products/IMG_0445.jpeg",
     "activo": true,
     "tienda": [
@@ -656,7 +656,7 @@
   "pk": "dcd83555-a0d3-48c5-8a38-b3e2c8e610db",
   "fields": {
     "nombre": "Cream for Rough & Bumpy Skin",
-    "descripcion": "Formulada con ├ícido salic├¡lico y ├ícido l├íctico para exfoliar suavemente las c├®lulas muertas y la piel irregular, adem├ís de ├ícido hialur├│nico hidratante y niacinamida calmante, nuestra crema sin perfume para pieles ├ísperas e irregulares ayuda a mejorar la textura general de la piel.\r\nIdeal para: Piel ├íspera e irregular\r\nAyuda con: Hidrataci├│n, exfoliaci├│n\r\nDetalles del Producto\r\n\r\nUna crema con ├ícido salicilico puede exfoliar, suavizar y aliviar la piel aspera, como la piel escamosa en la parte superior de los brazos y los muslos (y toda la piel que se sienta como ÔÇ£de gallinaÔÇØ). CeraVe SA Cream for Rough and Bumpy Skin est├í dise├▒ada para mejorar la textura de la piel y suavizar la piel muy seca y ├íspera. Formulada con ├ícido salic├¡lico y ├ícido lactico  para exfoliar suavemente las c├®lulas muertas de la piel y la piel ├íspera, as├¡ como ├ícido hialur├│nico hidratante y niacinamida para aliviar la piel,nuestra crema sin fragancia para piel ├íspera ayuda a mejorar la textura general de la piel.\r\n\r\nLos ingredientes de SA Cream de CeraVe, que incluyen tres ceramidas esenciales, trabajan juntos para retener la hidrataci├│n y ayudar a mantener la barrera protectora de la piel. Adem├ís, la tecnolog├¡a MVE libera continuamente ingredientes humectantes para una hidrataci├│n que dura todo el d├¡a. La hidrataci├│n duradera favorece la barrera protectora de la piel, mucho despu├®s de que haber terminado de aplicarla.",
+    "descripcion": "Formulada con ácido salicílico y ácido láctico para exfoliar suavemente las células muertas y la piel irregular, además de ácido hialurónico hidratante y niacinamida calmante, nuestra crema sin perfume para pieles ásperas e irregulares ayuda a mejorar la textura general de la piel.\r\nIdeal para: Piel áspera e irregular\r\nAyuda con: Hidratación, exfoliación\r\nDetalles del Producto\r\n\r\nUna crema con ácido salicilico puede exfoliar, suavizar y aliviar la piel aspera, como la piel escamosa en la parte superior de los brazos y los muslos (y toda la piel que se sienta como “de gallina”). CeraVe SA Cream for Rough and Bumpy Skin está diseñada para mejorar la textura de la piel y suavizar la piel muy seca y áspera. Formulada con ácido salicílico y ácido lactico  para exfoliar suavemente las células muertas de la piel y la piel áspera, así como ácido hialurónico hidratante y niacinamida para aliviar la piel,nuestra crema sin fragancia para piel áspera ayuda a mejorar la textura general de la piel.\r\n\r\nLos ingredientes de SA Cream de CeraVe, que incluyen tres ceramidas esenciales, trabajan juntos para retener la hidratación y ayudar a mantener la barrera protectora de la piel. Además, la tecnología MVE libera continuamente ingredientes humectantes para una hidratación que dura todo el día. La hidratación duradera favorece la barrera protectora de la piel, mucho después de que haber terminado de aplicarla.",
     "precio": "130000.00",
     "stock": 625,
     "marca": "CeraVe",
@@ -673,7 +673,7 @@
   "pk": "e0084fa2-a4b9-495f-aff3-e19b4b0dd631",
   "fields": {
     "nombre": "Contorno de ojos",
-    "descripcion": "Descubre este gel que contiene una poderosa mezcla de Vitamina C encapsulada y P├®ptidos, todo lo que necesitas para una mirada m├ís firme y brillante! Su f├│rmula tambi├®n incluye cafe├¡na, que ayuda a desinflamar la zona y ceramidas que protegen la barrera cut├ínea y mantiene la hidrataci├│n, mientras aporta firmeza y elasticidad.",
+    "descripcion": "Descubre este gel que contiene una poderosa mezcla de Vitamina C encapsulada y Péptidos, todo lo que necesitas para una mirada más firme y brillante! Su fórmula también incluye cafeína, que ayuda a desinflamar la zona y ceramidas que protegen la barrera cutánea y mantiene la hidratación, mientras aporta firmeza y elasticidad.",
     "precio": "12.00",
     "stock": 67,
     "marca": "Blusa - bar",
@@ -690,11 +690,11 @@
   "pk": "e07d6332-e730-4a92-8c5e-eb93d1de1bd4",
   "fields": {
     "nombre": "Glazing Mist Hydrating Face Spray",
-    "descripcion": "Tu glow-to-go definitivo Ô£¿\r\nUn spray facial ultrafino y de alto rendimiento que hidrata, refresca y deja la piel con ese acabado glazed caracter├¡stico de Rhode ÔÇö luminoso, jugoso y saludable.\r\n\r\n­ƒî┐ Tipo de piel: Normal, seca, mixta y grasa\r\n­ƒÆ½ Preocupaciones: Sequedad y opacidad\r\n­ƒÆº F├│rmula: Spray hidratante",
+    "descripcion": "Tu glow-to-go definitivo ✨\r\nUn spray facial ultrafino y de alto rendimiento que hidrata, refresca y deja la piel con ese acabado glazed característico de Rhode — luminoso, jugoso y saludable.\r\n\r\n🌿 Tipo de piel: Normal, seca, mixta y grasa\r\n💫 Preocupaciones: Sequedad y opacidad\r\n💧 Fórmula: Spray hidratante",
     "precio": "215000.00",
     "stock": 874,
     "marca": "Rhode",
-    "categoria": "T├│nicos",
+    "categoria": "Tónicos",
     "imagen": "products/s2895977-main-zoom_1024x1024.webp",
     "activo": true,
     "tienda": [
@@ -707,7 +707,7 @@
   "pk": "e566a84a-0a58-44f9-979a-c58caf226fee",
   "fields": {
     "nombre": "PM FACIAL MOISTURIZING LOTION - CERAVE",
-    "descripcion": "Crema humectante ligera de uso nocturno formulada con tres ceramidas esenciales que ayudan a fortalecer la barrera natural de la piel, ├ícido hialur├│nico hidratante y niacinamida que ayuda a calmar la piel.\r\n\r\nUsa la tecnolog├¡a de entrega patentada MVE para proporcionar un flujo constante de hidrataci├│n durante la noche y ayuda a que la piel la retenga.",
+    "descripcion": "Crema humectante ligera de uso nocturno formulada con tres ceramidas esenciales que ayudan a fortalecer la barrera natural de la piel, ácido hialurónico hidratante y niacinamida que ayuda a calmar la piel.\r\n\r\nUsa la tecnología de entrega patentada MVE para proporcionar un flujo constante de hidratación durante la noche y ayuda a que la piel la retenga.",
     "precio": "115000.00",
     "stock": 1100,
     "marca": "CeraVe",
@@ -724,7 +724,7 @@
   "pk": "fd56bff6-f1a4-4503-99d5-317ddbb3ce80",
   "fields": {
     "nombre": "Agua micelar",
-    "descripcion": "NIVEA Agua Micelar Regeneradora para pieles cansadas y sensibles contiene un 5% de S├®rum con Pantenol y Escualeno y elimina eficazmente el maquillaje resistente al agua, las impurezas y la suciedad con unos pocos toques.",
+    "descripcion": "NIVEA Agua Micelar Regeneradora para pieles cansadas y sensibles contiene un 5% de Sérum con Pantenol y Escualeno y elimina eficazmente el maquillaje resistente al agua, las impurezas y la suciedad con unos pocos toques.",
     "precio": "3.00",
     "stock": 50,
     "marca": "Nivea",
