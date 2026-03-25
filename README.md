@@ -55,7 +55,8 @@ docker compose up -d --build
 
 ### 3) Verificar que todo esta arriba
 
-- Frontend: http://127.0.0.1:3000
+- Frontend: http://192.168.78.129:3000
+- http://localhost:3000/
 - Backend health: http://127.0.0.1:8000/api/health/
 
 Comando de verificacion de contenedores:
