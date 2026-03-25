@@ -46,10 +46,16 @@ En caso de error con el paso anterior ejecute
 
 ```bash
 Copy-Item .env.example .env
-```
+
+Luego:
+
+notepad .env
+
+Dentro del notepad cambia `DJANGO_DEBUG=False` por `DJANGO_DEBUG=True`
+
 y luego ejecute:
 
-```bash
+
 docker compose up -d --build
 ```
 
