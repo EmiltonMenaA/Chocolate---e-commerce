@@ -15,7 +15,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-
   web:
     build:
       context: ./backend
@@ -28,12 +27,12 @@ services:
       POSTGRES_PORT: 5432
     volumes:
       - ./backend:/app
+      - media_files:/app/media
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-
   frontend:
     build:
       context: .
@@ -42,12 +41,13 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+      - media_files:/app/media
     ports:
       - "3000:3000"
     environment:
       VITE_API_URL: http://web:8000
     depends_on:
       - web
-
 volumes:
   postgres_data:
+  media_files:
