@@ -42,6 +42,16 @@ cd E-commerce\ Chocolate
 ```bash
 docker compose up -d --build
 ```
+En caso de error con el paso anterior ejecute 
+
+```bash
+Copy-Item .env.example .env
+```
+y luego ejecute:
+
+```bash
+docker compose up -d --build
+```
 
 ### 3) Verificar que todo esta arriba
 
