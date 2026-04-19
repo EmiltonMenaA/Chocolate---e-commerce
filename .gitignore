@@ -38,3 +38,4 @@ venv/
 backend/db.sqlite3
 *.sqlite3
 backend/media/
+media/

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any, Dict
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
@@ -8,9 +9,17 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import DetallePedido, Pedido, PerfilUsuario, Producto, Reseña
+from .models import Categoria, DetallePedido, Pedido, PerfilUsuario, Producto, Reseña
 
 User = get_user_model()
+
+
+def _validate_password_strength(value: str) -> str:
+    if not re.search(r'[A-Z]', value):
+        raise serializers.ValidationError('La contraseña debe contener al menos una mayúscula.')
+    if not re.search(r'[0-9]', value):
+        raise serializers.ValidationError('La contraseña debe contener al menos un número.')
+    return value
 
 
 class RegistroClienteSerializer(serializers.ModelSerializer):
@@ -30,6 +39,9 @@ class RegistroClienteSerializer(serializers.ModelSerializer):
         if data['password'] != data['password2']:
             raise serializers.ValidationError({'password2': 'Las contraseñas no coinciden.'})
         return data
+
+    def validate_password(self, value: str) -> str:
+        return _validate_password_strength(value)
 
     @transaction.atomic
     def create(self, validated_data: Dict):  # type: ignore
@@ -75,6 +87,9 @@ class RegistroTiendaSerializer(serializers.ModelSerializer):
         if data['password'] != data['password2']:
             raise serializers.ValidationError({'password2': 'Las contraseñas no coinciden.'})
         return data
+
+    def validate_password(self, value: str) -> str:
+        return _validate_password_strength(value)
 
     @transaction.atomic
     def create(self, validated_data: Dict):  # type: ignore
@@ -159,6 +174,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class ProductoSerializer(serializers.ModelSerializer):
     tienda_nombre = serializers.SerializerMethodField(read_only=True)
+    categoria = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
     class Meta:
         model = Producto
@@ -177,15 +193,37 @@ class ProductoSerializer(serializers.ModelSerializer):
         return ''
 
     def create(self, validated_data: "dict[str, Any]") -> "Producto":
+        categoria = self._resolve_categoria(validated_data)
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             validated_data['tienda'] = request.user
+        if categoria is not serializers.empty:
+            validated_data['categoria'] = categoria
         # If frontend omits this field in multipart requests, keep products visible in catalog.
         validated_data.setdefault('activo', True)
         return super().create(validated_data)
 
+    def update(self, instance, validated_data):
+        categoria = self._resolve_categoria(validated_data)
+        if categoria is not serializers.empty:
+            validated_data['categoria'] = categoria
+        return super().update(instance, validated_data)
+
+    def _resolve_categoria(self, validated_data: "dict[str, Any]"):
+        categoria_value = validated_data.pop('categoria', serializers.empty)
+        if categoria_value is serializers.empty:
+            return serializers.empty
+
+        categoria_nombre = str(categoria_value or '').strip()
+        if not categoria_nombre:
+            return None
+
+        categoria, _ = Categoria.objects.get_or_create(nombre=categoria_nombre)
+        return categoria
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        data['categoria'] = instance.categoria.nombre if instance.categoria else ''
         # Return media as relative path so frontend proxy resolves it correctly in Docker.
         data['imagen'] = instance.imagen.url if instance.imagen else None
         return data
@@ -309,6 +347,8 @@ class ReseñaSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict):
         request = self.context.get('request')
+        if request is None:
+            raise serializers.ValidationError('No se encontró el request en el contexto del serializer.')
         validated_data['usuario'] = request.user
         return super().create(validated_data)
 

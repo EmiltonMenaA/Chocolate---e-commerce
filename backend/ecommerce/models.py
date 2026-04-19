@@ -2,12 +2,23 @@ import uuid
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.conf import settings
 from django.db import models
+from django.db.models import Avg
 
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
+
+
+class Categoria(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        ordering = ['nombre']
+
+    def __str__(self) -> str:
+        return self.nombre
 
 
 class Producto(models.Model):
@@ -21,7 +32,13 @@ class Producto(models.Model):
     )
     stock = models.PositiveIntegerField()
     marca = models.CharField(max_length=120)
-    categoria = models.CharField(max_length=100, blank=True, default='')
+    categoria = models.ForeignKey(
+        Categoria,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='productos',
+    )
     imagen = models.ImageField(upload_to='products/', blank=True, null=True)
     activo = models.BooleanField(default=True)
     tienda = models.ForeignKey(
@@ -31,6 +48,11 @@ class Producto(models.Model):
         blank=True,
         related_name='productos',
     )
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['categoria', 'activo'], name='ecommerce_p_catego_12f799_idx'),
+        ]
 
     def __str__(self) -> str:
         return f'{self.nombre} - {self.marca}'
@@ -46,11 +68,8 @@ class Producto(models.Model):
 
     @property
     def calificacion_promedio(self) -> float:
-        reseñas = self.reseñas.all()
-        if not reseñas.exists():
-         return 0.0
-        total = sum(r.calificacion for r in reseñas)
-        return round(total / reseñas.count(), 1)
+        avg = self.reseñas.aggregate(valor=Avg('calificacion'))['valor']
+        return round(float(avg), 1) if avg is not None else 0.0
 
 
 class Carrito(models.Model):
@@ -273,7 +292,7 @@ class Reseña(models.Model):
         related_name='reseñas',
     )
     calificacion = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1)],
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
     )
     comentario = models.TextField(blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)

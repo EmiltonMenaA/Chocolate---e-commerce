@@ -1,11 +1,14 @@
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
+from rest_framework.exceptions import ValidationError
 
 from .models import Carrito, DetallePedido, ItemCarrito, Pedido, Producto
+from .services import CheckoutService
 
 
 class HealthEndpointTests(TestCase):
@@ -262,4 +265,76 @@ class DetallePedidoModelTests(TestCase):
         self.producto.precio = Decimal('50.00')
         self.producto.save()
         self.assertEqual(detalle.subtotal, Decimal('60.00'))
+
+
+class CheckoutServiceTests(TestCase):
+    def setUp(self) -> None:
+        user_model = get_user_model()
+        self.usuario = user_model.objects.create_user(
+            username='checkout-user',
+            email='checkout@example.com',
+            password='Secret123!',
+        )
+        self.producto = Producto.objects.create(
+            nombre='Protector Solar',
+            descripcion='FPS 50',
+            precio='50.00',
+            stock=10,
+            marca='Chocolat',
+            activo=True,
+        )
+
+    @patch('ecommerce.services.services.CheckoutService._attach_invoice_pdf')
+    def test_checkout_reduce_stock(self, _mock_attach_invoice_pdf) -> None:
+        pedido = CheckoutService.process_checkout(
+            user=self.usuario,
+            items=[{'producto_id': str(self.producto.id), 'cantidad': 3}],
+            envio_data={'direccion_entrega': 'Calle 123'},
+            perfil_data={},
+        )
+
+        self.producto.refresh_from_db()
+        self.assertEqual(self.producto.stock, 7)
+        self.assertEqual(pedido.total, Decimal('150.00'))
+
+    @patch('ecommerce.services.services.CheckoutService._attach_invoice_pdf')
+    def test_checkout_descuenta_stock_correctamente(self, _mock_attach_invoice_pdf) -> None:
+        CheckoutService.process_checkout(
+            user=self.usuario,
+            items=[{'producto_id': str(self.producto.id), 'cantidad': 3}],
+            envio_data={'direccion_entrega': 'Calle 123'},
+            perfil_data={},
+        )
+
+        self.producto.refresh_from_db()
+        self.assertEqual(self.producto.stock, 7)
+
+    @patch('ecommerce.services.services.CheckoutService._attach_invoice_pdf')
+    def test_checkout_fails_with_insufficient_stock(self, _mock_attach_invoice_pdf) -> None:
+        with self.assertRaises(ValidationError):
+            CheckoutService.process_checkout(
+                user=self.usuario,
+                items=[{'producto_id': str(self.producto.id), 'cantidad': 999}],
+                envio_data={'direccion_entrega': 'Calle 123'},
+                perfil_data={},
+            )
+
+        self.producto.refresh_from_db()
+        self.assertEqual(self.producto.stock, 10)
+
+    @patch('ecommerce.services.services.CheckoutService._attach_invoice_pdf')
+    def test_checkout_rechaza_si_stock_insuficiente(self, _mock_attach_invoice_pdf) -> None:
+        self.producto.stock = 2
+        self.producto.save(update_fields=['stock'])
+
+        with self.assertRaises(ValidationError):
+            CheckoutService.process_checkout(
+                user=self.usuario,
+                items=[{'producto_id': str(self.producto.id), 'cantidad': 5}],
+                envio_data={'direccion_entrega': 'Calle 123'},
+                perfil_data={},
+            )
+
+        self.producto.refresh_from_db()
+        self.assertEqual(self.producto.stock, 2)
 

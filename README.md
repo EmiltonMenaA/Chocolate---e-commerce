@@ -37,29 +37,22 @@ git clone <URL_DEL_REPOSITORIO>
 cd E-commerce\ Chocolate
 ```
 
-### 2) Levantar todo con Docker
-
-```bash
-docker compose up -d --build
-```
-En caso de error con el paso anterior ejecute 
+### 2) Crear archivo de entorno para desarrollo
 
 ```bash
 Copy-Item .env.example .env
+```
 
-Luego:
+La configuracion de desarrollo (por ejemplo `DJANGO_DEBUG=True`) se maneja desde `.env`.
+No hace falta editar valores manualmente en codigo o README para cambiar entre dev/prod.
 
-notepad .env
+### 3) Levantar todo con Docker
 
-Dentro del notepad cambia `DJANGO_DEBUG=False` por `DJANGO_DEBUG=True`
-
-y luego ejecute:
-
-
+```bash
 docker compose up -d --build
 ```
 
-### 3) Verificar que todo esta arriba
+### 4) Verificar que todo esta arriba
 
 - Frontend: http://192.168.78.129:3000
 - http://localhost:3000/
@@ -71,13 +64,13 @@ Comando de verificacion de contenedores:
 docker compose ps
 ```
 
-### 4) Ver logs (opcional)
+### 5) Ver logs (opcional)
 
 ```bash
 docker compose logs -f
 ```
 
-### 5) Detener servicios
+### 6) Detener servicios
 
 ```bash
 docker compose down

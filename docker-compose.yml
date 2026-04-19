@@ -2,10 +2,12 @@ services:
   db:
     image: postgres:16-alpine
     container_name: chocolate_db
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: chocolate_db
-      POSTGRES_USER: chocolate_user
-      POSTGRES_PASSWORD: chocolate_pass
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:

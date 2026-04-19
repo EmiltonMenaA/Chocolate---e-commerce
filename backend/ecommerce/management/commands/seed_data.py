@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
-from ecommerce.models import DetallePedido, Pedido, PerfilUsuario, Producto
+from ecommerce.models import Categoria, DetallePedido, Pedido, PerfilUsuario, Producto
 
 
 class Command(BaseCommand):
@@ -151,6 +151,7 @@ class Command(BaseCommand):
         productos = []
         for i, data in enumerate(productos_seed):
             tienda = tiendas[i % len(tiendas)]
+            categoria, _ = Categoria.objects.get_or_create(nombre=data['categoria'])
             producto, _ = Producto.objects.get_or_create(
                 nombre=data['nombre'],
                 tienda=tienda,
@@ -159,7 +160,7 @@ class Command(BaseCommand):
                     'precio': data['precio'],
                     'stock': data['stock'],
                     'marca': data['marca'],
-                    'categoria': data['categoria'],
+                    'categoria': categoria,
                     'activo': True,
                 },
             )
