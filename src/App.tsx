@@ -12,6 +12,7 @@ import TiendaLogin from './pages/TiendaLogin'
 import TiendaRegister from './pages/TiendaRegister'
 import ProductCatalog from './pages/ProductCatalog'
 import ProductDetail from './pages/ProductDetail'
+import ProductosAliados from './pages/ProductosAliados'
 import ShoppingCart from './pages/ShoppingCart'
 import Checkout from './pages/Checkout'
 import PaymentMethod from './pages/PaymentMethod'
@@ -34,6 +35,7 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/products" element={<ProductCatalog />} />
+              <Route path="/productos-aliados" element={<ProductosAliados />} />
               <Route path="/products/:id" element={<ProductDetail />} />
               <Route path="/cart" element={<ShoppingCart />} />
               <Route

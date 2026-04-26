@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 
 export default function LoginPage() {
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -27,7 +29,7 @@ export default function LoginPage() {
       const axiosErr = err as { response?: { data?: { detail?: string } } }
       setError(
         axiosErr?.response?.data?.detail ||
-        'Correo o contraseña incorrectos. Intenta de nuevo.'
+        t('auth.loginFallbackError')
       )
     } finally {
       setIsLoading(false)
@@ -64,15 +66,15 @@ export default function LoginPage() {
       <div className="bg-cocoa-900 dark:bg-cocoa-900 p-8 lg:p-12 flex flex-col justify-center">
         <div className="max-w-md">
           <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2">
-            Bienvenido de nuevo
+            {t('auth.loginWelcome')}
           </h1>
           <p className="text-cafe mb-2">
-            Inicia sesión en tu cuenta de cliente
+            {t('auth.loginSubtitle')}
           </p>
           <p className="text-cocoa-400 text-sm mb-8">
-            ¿Eres vendedor?{' '}
+            {t('auth.vendorPrompt')}{' '}
             <Link to="/panel/login" className="text-cafe hover:text-orange-400 font-semibold">
-              Accede al panel de tienda
+              {t('auth.vendorAccess')}
             </Link>
           </p>
 
@@ -85,7 +87,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-white mb-2">
-                CORREO ELECTRÓNICO
+                {t('auth.email').toUpperCase()}
               </label>
               <input
                 type="email"
@@ -101,10 +103,10 @@ export default function LoginPage() {
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label htmlFor="password" className="block text-sm font-semibold text-white">
-                  CONTRASEÑA
+                  {t('auth.password').toUpperCase()}
                 </label>
                 <a href="#" className="text-cafe text-sm hover:text-orange-400 font-semibold">
-                  ¿Olvidaste tu contraseña?
+                  {t('auth.forgotPassword')}
                 </a>
               </div>
               <input
@@ -126,18 +128,18 @@ export default function LoginPage() {
               {isLoading ? (
                 <>
                   <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
-                  Iniciando sesión...
+                  {t('auth.loginLoading')}
                 </>
               ) : (
-                'Iniciar sesión'
+                t('auth.loginTitle')
               )}
             </button>
 
             <div className="text-center text-cocoa-400">
               <p>
-                ¿Nuevo en Chocolate?{' '}
+                {t('auth.newInChocolate')}{' '}
                 <Link to="/register" className="text-cafe hover:text-orange-400 font-semibold">
-                  Crear cuenta
+                  {t('auth.createAccount')}
                 </Link>
               </p>
             </div>

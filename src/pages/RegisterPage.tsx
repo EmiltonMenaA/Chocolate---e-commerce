@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 
 export default function RegisterPage() {
+  const { t } = useTranslation()
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -25,7 +27,7 @@ export default function RegisterPage() {
     e.preventDefault()
     setError('')
     if (formData.password !== formData.password2) {
-      setError('Las contraseñas no coinciden.')
+      setError(t('auth.passwordsNoMatch'))
       return
     }
     setIsLoading(true)
@@ -39,12 +41,12 @@ export default function RegisterPage() {
       }
       const data = axiosErr?.response?.data
       if (typeof data === 'string') {
-        setError(data.trim().startsWith('<') ? 'Ocurrió un error en el servidor. Intenta de nuevo.' : data)
+        setError(data.trim().startsWith('<') ? t('auth.serverError') : data)
       } else if (data && typeof data === 'object') {
         const first = Object.values(data).flat()[0]
-        setError(typeof first === 'string' ? first : 'Error al crear la cuenta.')
+        setError(typeof first === 'string' ? first : t('auth.registerError'))
       } else {
-        setError('Error de conexión. Intenta de nuevo.')
+        setError(t('auth.connectionError'))
       }
     } finally {
       setIsLoading(false)
@@ -57,17 +59,17 @@ export default function RegisterPage() {
       <div className="bg-gradient-to-br from-pink-200 to-pink-300 p-8 lg:p-12 flex flex-col justify-between hidden lg:flex">
         <div>
           <h2 className="text-4xl lg:text-5xl font-bold text-cocoa-900 leading-tight mb-4">
-            Únete al mundo de <span className="text-cafe">Chocolate</span>
+            {t('auth.registerHeroTitle')}
           </h2>
           <p className="text-lg text-cocoa-700 mb-8">
-            Experimenta skincare y rituales de belleza premium a tu medida.
+            {t('auth.registerHeroSubtitle')}
           </p>
         </div>
         <div className="space-y-6">
           {[
-            { icon: '♡', title: 'Recompensas de lealtad exclusivas' },
-            { icon: '✨', title: 'Rutinas de belleza personalizadas' },
-            { icon: '↦', title: 'Envío prioritario en tus pedidos' },
+            { icon: '♡', title: t('auth.registerPerk1') },
+            { icon: '✨', title: t('auth.registerPerk2') },
+            { icon: '↦', title: t('auth.registerPerk3') },
           ].map(({ icon, title }) => (
             <div key={icon} className="flex items-start gap-4">
               <div className="w-12 h-12 bg-cafe rounded-full flex items-center justify-center text-white text-2xl flex-shrink-0">
@@ -80,9 +82,9 @@ export default function RegisterPage() {
           ))}
         </div>
         <p className="text-cocoa-500 text-sm mt-6">
-          ¿Tienes una tienda?{' '}
+          {t('auth.vendorRegisterPrompt')}{' '}
           <Link to="/panel/register" className="text-cafe font-semibold hover:text-orange-600">
-            Registra tu negocio aquí
+            {t('auth.vendorRegisterLink')}
           </Link>
         </p>
       </div>
@@ -91,10 +93,10 @@ export default function RegisterPage() {
       <div className="bg-white p-8 lg:p-12 flex flex-col justify-center">
         <div className="max-w-md mx-auto w-full">
           <h1 className="text-3xl lg:text-4xl font-bold text-cocoa-900 mb-2">
-            Crear cuenta
+            {t('auth.registerTitle')}
           </h1>
           <p className="text-gray-600 mb-8">
-            Comienza tu viaje de belleza con Chocolate hoy
+            {t('auth.registerSubtitle')}
           </p>
 
           {error && (
@@ -107,7 +109,7 @@ export default function RegisterPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="first_name" className="block text-sm font-semibold text-cocoa-900 mb-2">
-                  NOMBRE
+                  {t('auth.firstName').toUpperCase()}
                 </label>
                 <input
                   type="text"
@@ -122,7 +124,7 @@ export default function RegisterPage() {
               </div>
               <div>
                 <label htmlFor="last_name" className="block text-sm font-semibold text-cocoa-900 mb-2">
-                  APELLIDO
+                  {t('auth.lastName').toUpperCase()}
                 </label>
                 <input
                   type="text"
@@ -139,7 +141,7 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-cocoa-900 mb-2">
-                CORREO ELECTRÓNICO
+                {t('auth.email').toUpperCase()}
               </label>
               <input
                 type="email"
@@ -155,7 +157,7 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-cocoa-900 mb-2">
-                CONTRASEÑA
+                {t('auth.password').toUpperCase()}
               </label>
               <input
                 type="password"
@@ -164,7 +166,7 @@ export default function RegisterPage() {
                 value={formData.password}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border-2 border-cocoa-200 rounded-lg focus:outline-none focus:border-cafe text-cocoa-900"
-                placeholder="Mínimo 8 caracteres"
+                placeholder={t('auth.minChars')}
                 required
                 minLength={8}
               />
@@ -172,7 +174,7 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="password2" className="block text-sm font-semibold text-cocoa-900 mb-2">
-                CONFIRMAR CONTRASEÑA
+                {t('auth.confirmPassword').toUpperCase()}
               </label>
               <input
                 type="password"
@@ -189,13 +191,13 @@ export default function RegisterPage() {
             <div className="flex items-start gap-2">
               <input type="checkbox" id="terms" className="w-5 h-5 mt-1 accent-cafe" required />
               <label htmlFor="terms" className="text-sm text-cocoa-700">
-                Acepto los{' '}
+                {t('auth.termsPrefix')}{' '}
                 <a href="#" className="text-cafe font-semibold hover:text-orange-600">
-                  Términos y Condiciones
+                  {t('auth.terms')}
                 </a>{' '}
-                y la{' '}
+                {t('auth.and')}{' '}
                 <a href="#" className="text-cafe font-semibold hover:text-orange-600">
-                  Política de Privacidad
+                  {t('auth.privacy')}
                 </a>
               </label>
             </div>
@@ -208,18 +210,18 @@ export default function RegisterPage() {
               {isLoading ? (
                 <>
                   <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
-                  Creando cuenta...
+                  {t('auth.creatingAccount')}
                 </>
               ) : (
-                'Crear mi cuenta'
+                t('auth.createMyAccount')
               )}
             </button>
 
             <div className="text-center text-gray-600">
               <p>
-                ¿Ya tienes cuenta?{' '}
+                {t('auth.hasAccount')}{' '}
                 <Link to="/login" className="text-cafe font-semibold hover:text-orange-600">
-                  Iniciar sesión
+                  {t('auth.loginTitle')}
                 </Link>
               </p>
             </div>

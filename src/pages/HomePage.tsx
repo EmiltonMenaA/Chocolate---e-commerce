@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
+import { useTranslation } from 'react-i18next'
 import { getBackendHealth } from '../services/api'
 
 type Producto = {
@@ -11,7 +12,17 @@ type Producto = {
   imagen: string | null
 }
 
+type ProductosResponse = Producto[] | { results?: Producto[] }
+
+const normalizeProductos = (data: ProductosResponse): Producto[] => {
+  if (Array.isArray(data)) {
+    return data
+  }
+  return data.results ?? []
+}
+
 export default function HomePage() {
+  const { t } = useTranslation()
   const [backendStatus, setBackendStatus] = useState<'loading' | 'online' | 'offline'>('loading')
   const [featuredProducts, setFeaturedProducts] = useState<Producto[]>([])
 
@@ -23,9 +34,9 @@ export default function HomePage() {
         if (active) {
           setBackendStatus('online')
         }
-        const { data } = await axios.get<Producto[]>('/api/productos/')
+        const { data } = await axios.get<ProductosResponse>('/api/productos/')
         if (active) {
-          setFeaturedProducts(data.slice(0, 4))
+          setFeaturedProducts(normalizeProductos(data).slice(0, 4))
         }
       })
       .catch(() => {
@@ -54,38 +65,38 @@ export default function HomePage() {
                     : 'bg-yellow-100 text-yellow-700'
               }`}
             >
-              {backendStatus === 'online' && 'Backend Django conectado'}
-              {backendStatus === 'offline' && 'Backend Django no disponible'}
-              {backendStatus === 'loading' && 'Verificando conexión con Django...'}
+              {backendStatus === 'online' && t('home.backendOnline')}
+              {backendStatus === 'offline' && t('home.backendOffline')}
+              {backendStatus === 'loading' && t('home.backendLoading')}
             </span>
           </div>
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-5xl lg:text-6xl font-bold text-cocoa-900 dark:text-white mb-6 leading-tight">
-                Belleza Natural, Lujo Puro
+                {t('home.heroTitle')}
               </h1>
               <p className="text-xl text-cocoa-700 dark:text-slate-300 mb-8">
-                Descubre nuestra colección de productos de cuidado de la piel premium, formulados con ingredientes naturales de la más alta calidad.
+                {t('home.heroSubtitle')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link 
                   to="/products"
                   className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-colors text-center"
                 >
-                  Explorar Catálogo
+                  {t('home.ctaCatalog')}
                 </Link>
                 <Link 
                   to="/skin-quiz"
                   className="px-8 py-3 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors text-center"
                 >
-                  Descubrir Mi Tipo de Piel
+                  {t('home.ctaSkinQuiz')}
                 </Link>
               </div>
             </div>
             <div className="rounded-xl overflow-hidden">
               <img 
                 src="/images/banners/Icono.jpeg"
-                alt="Productos premium"
+                alt={t('home.heroImageAlt')}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.currentTarget.src = '/images/banners/chocolate_beauty_favicon.svg'
@@ -100,10 +111,10 @@ export default function HomePage() {
       <section className="px-6 lg:px-20 py-20 bg-cocoa-50 dark:bg-cocoa-900">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold text-cocoa-900 dark:text-white mb-4">
-            Productos Destacados
+            {t('home.featuredTitle')}
           </h2>
           <p className="text-lg text-cocoa-700 dark:text-slate-300 mb-12">
-            Nuestros artículos más populares de esta temporada
+            {t('home.featuredSubtitle')}
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -135,7 +146,7 @@ export default function HomePage() {
 
           {backendStatus === 'online' && featuredProducts.length === 0 && (
             <p className="text-cocoa-500 mt-6">
-              Aún no hay productos cargados. ¡Vuelve pronto para descubrir nuestras novedades!
+              {t('home.featuredEmpty')}
             </p>
           )}
 
@@ -144,7 +155,7 @@ export default function HomePage() {
               to="/products"
               className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-colors inline-block"
             >
-              Ver Todos los Productos
+              {t('home.ctaAllProducts')}
             </Link>
           </div>
         </div>
@@ -154,7 +165,7 @@ export default function HomePage() {
       <section className="px-6 lg:px-20 py-20">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold text-cocoa-900 dark:text-white text-center mb-12">
-            ¿Por qué elegir Chocolate?
+            {t('home.benefitsTitle')}
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -163,10 +174,10 @@ export default function HomePage() {
                 <span className="material-symbols-outlined text-white text-2xl">eco</span>
               </div>
               <h3 className="text-xl font-bold text-cocoa-900 dark:text-white mb-2">
-                100% Natural
+                {t('home.benefitNaturalTitle')}
               </h3>
               <p className="text-cocoa-700 dark:text-slate-300">
-                Ingredientes puros y naturales, sin químicos dañinos
+                {t('home.benefitNaturalText')}
               </p>
             </div>
 
@@ -175,10 +186,10 @@ export default function HomePage() {
                 <span className="material-symbols-outlined text-white text-2xl">verified</span>
               </div>
               <h3 className="text-xl font-bold text-cocoa-900 dark:text-white mb-2">
-                Probado Científicamente
+                {t('home.benefitScienceTitle')}
               </h3>
               <p className="text-cocoa-700 dark:text-slate-300">
-                Formulaciones desarrolladas en laboratorios certificados
+                {t('home.benefitScienceText')}
               </p>
             </div>
 
@@ -187,10 +198,10 @@ export default function HomePage() {
                 <span className="material-symbols-outlined text-white text-2xl">recommend</span>
               </div>
               <h3 className="text-xl font-bold text-cocoa-900 dark:text-white mb-2">
-                Resultados Garantizados
+                {t('home.benefitResultsTitle')}
               </h3>
               <p className="text-cocoa-700 dark:text-slate-300">
-                Garantía de satisfacción o devolución del dinero
+                {t('home.benefitResultsText')}
               </p>
             </div>
           </div>

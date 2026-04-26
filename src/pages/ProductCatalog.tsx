@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import { useTranslation } from 'react-i18next'
 
 import CartFeedbackToast from '../components/CartFeedbackToast'
 import { useCart } from '../context/CartContext'
@@ -17,7 +18,17 @@ type Producto = {
   stock: number
 }
 
+type ProductosResponse = Producto[] | { results?: Producto[] }
+
+const normalizeProductos = (data: ProductosResponse): Producto[] => {
+  if (Array.isArray(data)) {
+    return data
+  }
+  return data.results ?? []
+}
+
 export default function ProductCatalog() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
@@ -37,17 +48,18 @@ export default function ProductCatalog() {
     const loadProducts = async () => {
       setIsLoading(true)
       try {
-        const { data } = await axios.get<Producto[]>('/api/productos/')
+        const { data } = await axios.get<ProductosResponse>('/api/productos/')
         if (!active) return
-        setProducts(data)
-        if (data.length > 0) {
-          const precios = data.map(item => Number(item.precio))
+        const normalizedProducts = normalizeProductos(data)
+        setProducts(normalizedProducts)
+        if (normalizedProducts.length > 0) {
+          const precios = normalizedProducts.map(item => Number(item.precio))
           const min = Math.floor(Math.min(...precios))
           const max = Math.ceil(Math.max(...precios))
           setPriceRange([min, max])
         }
       } catch {
-        if (active) setError('No se pudo cargar el catálogo de productos.')
+        if (active) setError(t('catalog.loadError'))
       } finally {
         if (active) setIsLoading(false)
       }
@@ -57,7 +69,7 @@ export default function ProductCatalog() {
     return () => {
       active = false
     }
-  }, [])
+  }, [t])
 
   const categories = Array.from(
     new Set(products.map(item => item.categoria).filter(Boolean))
@@ -103,7 +115,7 @@ export default function ProductCatalog() {
     event.preventDefault()
     event.stopPropagation()
     if (!isAuthenticated) {
-      setAuthError('Debes iniciar sesión para agregar productos al carrito.')
+      setAuthError(t('catalog.authRequired'))
       navigate('/login', { state: { from: location } })
       return
     }
@@ -134,12 +146,12 @@ export default function ProductCatalog() {
 
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold text-cocoa-900 dark:text-white mb-8">
-          Catálogo de Productos
+          {t('catalog.title')}
         </h1>
 
         {query && (
           <p className="mb-6 text-cocoa-600 dark:text-slate-300">
-            Resultados para: <span className="font-semibold">"{query}"</span>
+            {t('catalog.resultsFor')} <span className="font-semibold">"{query}"</span>
           </p>
         )}
 
@@ -154,13 +166,13 @@ export default function ProductCatalog() {
           <div className="lg:col-span-1">
             <div className="bg-white dark:bg-cocoa-800 rounded-xl p-6 sticky top-24">
               <h3 className="font-bold text-lg text-cocoa-900 dark:text-white mb-4">
-                Filtros
+                {t('catalog.filters')}
               </h3>
 
               {/* Categories */}
               <div className="mb-8">
                 <h4 className="font-semibold text-cocoa-900 dark:text-white mb-3">
-                  Categorías
+                  {t('catalog.categories')}
                 </h4>
                 <div className="space-y-2">
                   <button
@@ -171,7 +183,7 @@ export default function ProductCatalog() {
                         : 'text-cocoa-700 dark:text-slate-300 hover:bg-cocoa-100 dark:hover:bg-cocoa-700'
                     }`}
                   >
-                    Todos
+                    {t('catalog.all')}
                   </button>
                   {categories.map(cat => (
                     <button
@@ -192,7 +204,7 @@ export default function ProductCatalog() {
               {/* Price Range */}
               <div>
                 <h4 className="font-semibold text-cocoa-900 dark:text-white mb-3">
-                  Rango de Precio
+                  {t('catalog.priceRange')}
                 </h4>
                 <div className="space-y-2">
                   <input
@@ -224,7 +236,7 @@ export default function ProductCatalog() {
             {isLoading && (
               <div className="text-center py-12 text-cocoa-500">
                 <span className="material-symbols-outlined animate-spin text-4xl mb-4 block">progress_activity</span>
-                Cargando productos...
+                {t('catalog.loading')}
               </div>
             )}
 
@@ -257,7 +269,7 @@ export default function ProductCatalog() {
                         ${Number(product.precio).toFixed(2)}
                       </span>
                       <span className="text-xs px-2 py-1 bg-cocoa-100 rounded-full text-cocoa-600">
-                        {product.categoria || 'Sin categoría'}
+                        {product.categoria || t('catalog.uncategorized')}
                       </span>
                     </div>
                     <button
@@ -268,7 +280,7 @@ export default function ProductCatalog() {
                           : 'bg-primary hover:bg-red-600'
                       }`}
                     >
-                      {addedProductId === product.id ? 'Agregado' : 'Añadir al Carrito'}
+                      {addedProductId === product.id ? t('catalog.added') : t('catalog.addToCart')}
                     </button>
                   </div>
                 </Link>
@@ -282,7 +294,7 @@ export default function ProductCatalog() {
                   search_off
                 </span>
                 <p className="text-cocoa-700 dark:text-slate-300 text-lg">
-                  No se encontraron productos con los filtros seleccionados
+                  {t('catalog.noProductsWithFilters')}
                 </p>
               </div>
             )}

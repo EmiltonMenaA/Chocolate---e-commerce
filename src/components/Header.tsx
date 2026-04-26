@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
@@ -12,6 +13,7 @@ export default function Header() {
   const navigate = useNavigate()
   const { cartCount, clearCart } = useCart()
   const { user, isAuthenticated, logout } = useAuth()
+  const { t, i18n } = useTranslation()
 
   const isActive = (path: string) => location.pathname === path
 
@@ -38,6 +40,12 @@ export default function Header() {
     clearCart()
     await logout()
     navigate('/')
+  }
+
+  const toggleLang = () => {
+    const newLang = i18n.language === 'es' ? 'en' : 'es'
+    i18n.changeLanguage(newLang)
+    localStorage.setItem('lang', newLang)
   }
 
   return (
@@ -82,7 +90,17 @@ export default function Header() {
                 : 'text-cocoa-700 dark:text-slate-300 hover:text-cafe'
             }`}
           >
-            Catálogo
+            {t('nav.catalog')}
+          </Link>
+          <Link
+            to="/productos-aliados"
+            className={`font-medium transition-colors ${
+              isActive('/productos-aliados')
+                ? 'text-cafe'
+                : 'text-cocoa-700 dark:text-slate-300 hover:text-cafe'
+            }`}
+          >
+            {t('nav.allies')}
           </Link>
           <Link 
             to="/skin-quiz" 
@@ -92,7 +110,7 @@ export default function Header() {
                 : 'text-cocoa-700 dark:text-slate-300 hover:text-cafe'
             }`}
           >
-            Skin Quiz
+            {t('nav.skinQuiz')}
           </Link>
           <Link 
             to="/find-boutique" 
@@ -102,7 +120,7 @@ export default function Header() {
                 : 'text-cocoa-700 dark:text-slate-300 hover:text-cafe'
             }`}
           >
-            Buscar Boutique
+            {t('nav.findBoutique')}
           </Link>
           <Link 
             to="/cart" 
@@ -112,7 +130,7 @@ export default function Header() {
                 : 'text-cocoa-700 dark:text-slate-300 hover:text-cafe'
             }`}
           >
-            Carrito
+            {t('nav.cart')}
             {cartCount > 0 && (
               <span className="ml-2 inline-flex min-w-6 items-center justify-center rounded-full bg-emerald-500 px-2 py-0.5 text-xs font-bold text-white">
                 {cartCount}
@@ -120,6 +138,13 @@ export default function Header() {
             )}
           </Link>
         </nav>
+
+        <button
+          onClick={toggleLang}
+          className="hidden lg:block text-xs font-medium px-3 py-1 rounded-full border border-cocoa-300 dark:border-cocoa-600 text-cocoa-700 dark:text-slate-300 hover:bg-cocoa-100 dark:hover:bg-cocoa-800 transition-colors"
+        >
+          {i18n.language === 'es' ? 'EN' : 'ES'}
+        </button>
 
         {/* CTA Buttons */}
         <div className="hidden lg:flex items-center gap-4">
@@ -149,14 +174,14 @@ export default function Header() {
                     className="flex items-center gap-2 px-4 py-2 text-sm text-cocoa-700 dark:text-slate-300 hover:bg-cocoa-50 dark:hover:bg-cocoa-700 transition-colors"
                   >
                     <span className="material-symbols-outlined text-base">person</span>
-                    Mi cuenta
+                    {t('nav.myAccount')}
                   </Link>
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                   >
                     <span className="material-symbols-outlined text-base">logout</span>
-                    Cerrar sesión
+                    {t('nav.logout')}
                   </button>
                 </div>
               )}
@@ -167,13 +192,13 @@ export default function Header() {
                 to="/login"
                 className="px-6 py-2 text-cocoa-900 dark:text-white font-medium hover:text-cafe transition-colors"
               >
-                Iniciar sesión
+                {t('nav.login')}
               </Link>
               <Link
                 to="/register"
                 className="px-6 py-2 bg-cafe text-white rounded-lg font-medium hover:bg-amber-800 transition-colors"
               >
-                Registrarse
+                {t('nav.register')}
               </Link>
             </>
           )}
@@ -192,16 +217,19 @@ export default function Header() {
       {isMenuOpen && (
         <nav className="lg:hidden mt-4 flex flex-col gap-4 pb-4">
           <Link to="/products" className="text-cocoa-700 dark:text-slate-300 font-medium">
-            Catálogo
+            {t('nav.catalog')}
+          </Link>
+          <Link to="/productos-aliados" className="text-cocoa-700 dark:text-slate-300 font-medium">
+            {t('nav.allies')}
           </Link>
           <Link to="/skin-quiz" className="text-cocoa-700 dark:text-slate-300 font-medium">
-            Skin Quiz
+            {t('nav.skinQuiz')}
           </Link>
           <Link to="/find-boutique" className="text-cocoa-700 dark:text-slate-300 font-medium">
-            Buscar Boutique
+            {t('nav.findBoutique')}
           </Link>
           <Link to="/cart" className="text-cocoa-700 dark:text-slate-300 font-medium">
-            Carrito
+            {t('nav.cart')}
             {cartCount > 0 && (
               <span className="ml-2 inline-flex min-w-6 items-center justify-center rounded-full bg-emerald-500 px-2 py-0.5 text-xs font-bold text-white">
                 {cartCount}
@@ -209,11 +237,11 @@ export default function Header() {
             )}
           </Link>
           <Link to="/login" className="text-cocoa-700 dark:text-slate-300 font-medium">
-            Iniciar sesión
+            {t('nav.login')}
           </Link>
           {!isAuthenticated && (
             <Link to="/register" className="bg-cafe text-white px-4 py-2 rounded-lg font-medium">
-              Registrarse
+              {t('nav.register')}
             </Link>
           )}
           {isAuthenticated && (
@@ -221,7 +249,7 @@ export default function Header() {
               onClick={handleLogout}
               className="text-red-400 font-medium text-sm"
             >
-              Cerrar sesión
+              {t('nav.logout')}
             </button>
           )}
         </nav>

@@ -3,14 +3,91 @@ import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
+import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
+import { loadStripe, type Stripe } from '@stripe/stripe-js'
+
+type StripePaymentFormProps = {
+  onBack: () => void
+  onSuccess: (token: string) => void
+  isSubmitting: boolean
+}
+
+function StripePaymentForm({ onBack, onSuccess, isSubmitting }: StripePaymentFormProps) {
+  const stripe = useStripe()
+  const elements = useElements()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleSubmit = async () => {
+    if (!stripe || !elements || isSubmitting) {
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {},
+      redirect: 'if_required',
+    })
+
+    if (stripeError) {
+      setError(stripeError.message || 'Error en el pago')
+      setLoading(false)
+      return
+    }
+
+    if (paymentIntent) {
+      const paymentToken = paymentIntent.id || paymentIntent.client_secret || ''
+      if (paymentIntent.status === 'succeeded' && paymentToken) {
+        onSuccess(paymentToken)
+      } else {
+        setError('No se pudo confirmar el pago. Intenta con otro método.')
+      }
+    } else {
+      setError('No se recibió confirmación de pago de Stripe.')
+    }
+
+    setLoading(false)
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <PaymentElement />
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+      <div className="flex gap-4 mt-4">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex-1 py-3 border border-cafe text-cafe rounded-xl font-medium hover:bg-cafe/10 transition-colors"
+        >
+          Atrás
+        </button>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={loading || !stripe || isSubmitting}
+          className="flex-1 py-3 bg-cafe text-white rounded-xl font-medium hover:bg-amber-800 transition-colors disabled:opacity-50"
+        >
+          {loading || isSubmitting ? 'Procesando...' : 'Confirmar Pedido'}
+        </button>
+      </div>
+    </div>
+  )
+}
 
 export default function Checkout() {
   const { cartItems, clearCart } = useCart()
   const { accessToken, isAuthenticated } = useAuth()
+  const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [loadingPaymentIntent, setLoadingPaymentIntent] = useState(false)
   const [paymentError, setPaymentError] = useState('')
   const [invoiceUrl, setInvoiceUrl] = useState('')
+  const [clientSecret, setClientSecret] = useState('')
+  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null)
   const [formData, setFormData] = useState({
     email: '',
     fullName: '',
@@ -19,14 +96,7 @@ export default function Checkout() {
     city: '',
     homeType: 'casa',
     tower: '',
-    floor: '',
-    paymentMethod: 'tarjeta',
-    cardName: '',
-    cardNumber: '',
-    cardExpiry: '',
-    cardCvv: '',
-    pseBank: '',
-    pseDocument: ''
+    floor: ''
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -38,74 +108,128 @@ export default function Checkout() {
     }))
   }
 
+  const handleGoToPayment = async () => {
+    if (!isAuthenticated || !accessToken) {
+      setPaymentError('Debes iniciar sesión para completar la compra.')
+      return
+    }
+
+    if (cartItems.length === 0) {
+      setPaymentError('Tu carrito está vacío.')
+      return
+    }
+
+    if (total <= 0) {
+      setPaymentError('El total del carrito no es válido para procesar el pago.')
+      return
+    }
+
+    setPaymentError('')
+    setLoadingPaymentIntent(true)
+    try {
+      const { data } = await axios.post(
+        '/api/pedidos/payment-intent/',
+        { amount: total },
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      )
+
+      const receivedClientSecret = data?.client_secret || ''
+      const receivedPublishableKey = data?.publishable_key || ''
+      if (!receivedClientSecret || !receivedPublishableKey) {
+        throw new Error('No se pudo inicializar Stripe para el pago.')
+      }
+
+      setClientSecret(receivedClientSecret)
+      setStripePromise(loadStripe(receivedPublishableKey))
+      setStep(2)
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { detail?: string } } }
+      setPaymentError(
+        axiosError.response?.data?.detail ||
+        'No se pudo inicializar el pago con Stripe. Intenta de nuevo.',
+      )
+    } finally {
+      setLoadingPaymentIntent(false)
+    }
+  }
+
+  const completeCheckout = async (token: string) => {
+    if (!isAuthenticated || !accessToken) {
+      setPaymentError('Debes iniciar sesión para completar la compra.')
+      return
+    }
+
+    if (cartItems.length === 0) {
+      setPaymentError('Tu carrito está vacío.')
+      return
+    }
+
+    if (!token) {
+      setPaymentError('No se obtuvo el identificador del pago. Intenta de nuevo.')
+      return
+    }
+
+    setIsSubmitting(true)
+    setPaymentError('')
+    try {
+      const deliveryAddress = [
+        formData.address,
+        formData.city,
+        formData.homeType === 'apartamento'
+          ? `Torre ${formData.tower || '-'}, Piso ${formData.floor || '-'}`
+          : '',
+      ]
+        .filter(Boolean)
+        .join(', ')
+
+      const response = await axios.post(
+        '/api/pedidos/checkout/',
+        {
+          items: cartItems.map((item) => ({
+            producto_id: item.id,
+            cantidad: item.quantity,
+          })),
+          envio: {
+            direccion_entrega: deliveryAddress,
+          },
+          perfil: {
+            nombre: formData.fullName,
+            telefono: formData.phone,
+            direccion: deliveryAddress,
+          },
+          payment_data: {
+            token,
+            payment_intent_id: token,
+            currency: 'usd',
+          },
+        },
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
+      )
+
+      setInvoiceUrl(response.data?.factura_pdf_url || '')
+      clearCart()
+      setStep(3)
+    } catch (error: unknown) {
+      const axiosError = error as {
+        response?: { data?: { detail?: string } }
+      }
+      setPaymentError(
+        axiosError.response?.data?.detail ||
+        'No se pudo completar la compra. Verifica disponibilidad e inténtalo de nuevo.',
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setPaymentError('')
 
     if (step === 1) {
-      setStep(2)
-      return
-    }
-
-    if (step === 2) {
-      if (!isAuthenticated || !accessToken) {
-        setPaymentError('Debes iniciar sesión para completar la compra.')
-        return
-      }
-
-      if (cartItems.length === 0) {
-        setPaymentError('Tu carrito está vacío.')
-        return
-      }
-
-      setIsSubmitting(true)
-      try {
-        const deliveryAddress = [
-          formData.address,
-          formData.city,
-          formData.homeType === 'apartamento'
-            ? `Torre ${formData.tower || '-'}, Piso ${formData.floor || '-'}`
-            : '',
-        ]
-          .filter(Boolean)
-          .join(', ')
-
-        const response = await axios.post(
-          '/api/pedidos/checkout/',
-          {
-            items: cartItems.map((item) => ({
-              producto_id: item.id,
-              cantidad: item.quantity,
-            })),
-            envio: {
-              direccion_entrega: deliveryAddress,
-            },
-            perfil: {
-              nombre: formData.fullName,
-              telefono: formData.phone,
-              direccion: deliveryAddress,
-            },
-          },
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          },
-        )
-
-        setInvoiceUrl(response.data?.factura_pdf_url || '')
-
-        clearCart()
-        setStep(3)
-      } catch (error: unknown) {
-        const axiosError = error as {
-          response?: { data?: { detail?: string } }
-        }
-        setPaymentError(
-          axiosError.response?.data?.detail ||
-          'No se pudo completar la compra. Verifica disponibilidad e inténtalo de nuevo.',
-        )
-      } finally {
-        setIsSubmitting(false)
-      }
+      await handleGoToPayment()
       return
     }
   }
@@ -137,6 +261,12 @@ export default function Checkout() {
             </div>
           ))}
         </div>
+
+        {paymentError && step < 3 && (
+          <div className="mb-6 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {paymentError}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           {/* Step 1: Shipping */}
@@ -274,132 +404,20 @@ export default function Checkout() {
                 Información de Pago
               </h2>
 
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
-                  Método de Pago
-                </label>
-                <select
-                  name="paymentMethod"
-                  value={formData.paymentMethod}
-                  onChange={handleChange}
-                  className="w-full md:w-80 px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
-                >
-                  <option value="tarjeta">Tarjeta de crédito/débito</option>
-                  <option value="pse">PSE</option>
-                </select>
-              </div>
-
-              {formData.paymentMethod === 'tarjeta' && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
-                      Nombre en la Tarjeta
-                    </label>
-                    <input
-                      type="text"
-                      name="cardName"
-                      value={formData.cardName}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
-                      placeholder="Nombre como aparece en la tarjeta"
-                      required={step === 2 && formData.paymentMethod === 'tarjeta'}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
-                      Número de Tarjeta
-                    </label>
-                    <input
-                      type="text"
-                      name="cardNumber"
-                      value={formData.cardNumber}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
-                      placeholder="1234 5678 9012 3456"
-                      required={step === 2 && formData.paymentMethod === 'tarjeta'}
-                    />
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
-                        Fecha de Expiración
-                      </label>
-                      <input
-                        type="text"
-                        name="cardExpiry"
-                        value={formData.cardExpiry}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
-                        placeholder="MM/AA"
-                        required={step === 2 && formData.paymentMethod === 'tarjeta'}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
-                        CVV
-                      </label>
-                      <input
-                        type="text"
-                        name="cardCvv"
-                        value={formData.cardCvv}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
-                        placeholder="123"
-                        required={step === 2 && formData.paymentMethod === 'tarjeta'}
-                      />
-                    </div>
-                  </div>
+              {loadingPaymentIntent && (
+                <div className="rounded-lg border border-cocoa-200 bg-cocoa-50 px-4 py-3 text-sm text-cocoa-700">
+                  Inicializando pago con Stripe...
                 </div>
               )}
 
-              {formData.paymentMethod === 'pse' && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
-                      Banco
-                    </label>
-                    <select
-                      name="pseBank"
-                      value={formData.pseBank}
-                      onChange={handleChange}
-                      className="w-full md:w-96 px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
-                      required={step === 2 && formData.paymentMethod === 'pse'}
-                    >
-                      <option value="">Selecciona un banco</option>
-                      <option value="bancolombia">Bancolombia</option>
-                      <option value="davivienda">Davivienda</option>
-                      <option value="bbva">BBVA</option>
-                      <option value="banco_de_bogota">Banco de Bogota</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-cocoa-900 dark:text-white mb-2">
-                      Documento del Titular
-                    </label>
-                    <input
-                      type="text"
-                      name="pseDocument"
-                      value={formData.pseDocument}
-                      onChange={handleChange}
-                      className="w-full md:w-96 px-4 py-2 border border-cocoa-200 dark:border-cocoa-700 rounded-lg focus:outline-none focus:border-primary dark:bg-cocoa-700 dark:text-white"
-                      placeholder="Cédula o NIT"
-                      required={step === 2 && formData.paymentMethod === 'pse'}
-                    />
-                  </div>
-
-                  <div className="bg-cocoa-100 dark:bg-cocoa-700 p-4 rounded-lg text-sm text-cocoa-700 dark:text-slate-300">
-                    Simulación PSE: al confirmar, se asume que la entidad bancaria aprobó el pago.
-                  </div>
-                </div>
-              )}
-
-              {paymentError && (
-                <div className="mt-6 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  {paymentError}
-                </div>
+              {!loadingPaymentIntent && clientSecret && stripePromise && (
+                <Elements stripe={stripePromise} options={{ clientSecret }}>
+                  <StripePaymentForm
+                    onBack={() => setStep(1)}
+                    onSuccess={completeCheckout}
+                    isSubmitting={isSubmitting}
+                  />
+                </Elements>
               )}
             </div>
           )}
@@ -436,7 +454,7 @@ export default function Checkout() {
           )}
 
           {/* Navigation Buttons */}
-          {step < 3 && (
+          {step < 3 && step !== 2 && (
             <div className="flex gap-4">
               {step > 1 && (
                 <button
@@ -452,7 +470,7 @@ export default function Checkout() {
                 disabled={isSubmitting}
                 className="flex-1 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-colors"
               >
-                {step === 2 ? (isSubmitting ? 'Procesando compra...' : 'Confirmar Pedido') : 'Continuar'}
+                Continuar
               </button>
             </div>
           )}

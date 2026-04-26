@@ -5,6 +5,7 @@ from typing import Any, Dict
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.db import transaction
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -16,9 +17,9 @@ User = get_user_model()
 
 def _validate_password_strength(value: str) -> str:
     if not re.search(r'[A-Z]', value):
-        raise serializers.ValidationError('La contraseña debe contener al menos una mayúscula.')
+        raise serializers.ValidationError(_('La contraseña debe contener al menos una mayúscula.'))
     if not re.search(r'[0-9]', value):
-        raise serializers.ValidationError('La contraseña debe contener al menos un número.')
+        raise serializers.ValidationError(_('La contraseña debe contener al menos un número.'))
     return value
 
 
@@ -32,12 +33,12 @@ class RegistroClienteSerializer(serializers.ModelSerializer):
 
     def validate_email(self, value: str) -> str:
         if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError('Ya existe una cuenta con este email.')
+            raise serializers.ValidationError(_('Ya existe una cuenta con este email.'))
         return value
 
     def validate(self, data: Dict):  # type: ignore
         if data['password'] != data['password2']:
-            raise serializers.ValidationError({'password2': 'Las contraseñas no coinciden.'})
+            raise serializers.ValidationError({'password2': _('Las contraseñas no coinciden.')})
         return data
 
     def validate_password(self, value: str) -> str:
@@ -80,12 +81,12 @@ class RegistroTiendaSerializer(serializers.ModelSerializer):
 
     def validate_email(self, value: str) -> str:
         if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError('Ya existe una cuenta con este email.')
+            raise serializers.ValidationError(_('Ya existe una cuenta con este email.'))
         return value
 
     def validate(self, data: Dict):  # type: ignore
         if data['password'] != data['password2']:
-            raise serializers.ValidationError({'password2': 'Las contraseñas no coinciden.'})
+            raise serializers.ValidationError({'password2': _('Las contraseñas no coinciden.')})
         return data
 
     def validate_password(self, value: str) -> str:
@@ -349,13 +350,13 @@ class ReseñaSerializer(serializers.ModelSerializer):
 
     def validate_calificacion(self, value: int) -> int:
         if value < 1 or value > 5:
-            raise serializers.ValidationError('La calificación debe ser entre 1 y 5.')
+            raise serializers.ValidationError(_('La calificación debe ser entre 1 y 5.'))
         return value
 
     def create(self, validated_data: dict):
         request = self.context.get('request')
         if request is None:
-            raise serializers.ValidationError('No se encontró el request en el contexto del serializer.')
+            raise serializers.ValidationError(_('No se encontró el request en el contexto del serializer.'))
         validated_data['usuario'] = request.user
         return super().create(validated_data)
 

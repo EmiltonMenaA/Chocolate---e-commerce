@@ -1,0 +1,67 @@
+# English
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Español"
+msgstr "Spanish"
+
+msgid "English"
+msgstr "English"
+
+msgid "La contraseña debe contener al menos una mayúscula."
+msgstr "Password must contain at least one uppercase letter."
+
+msgid "La contraseña debe contener al menos un número."
+msgstr "Password must contain at least one number."
+
+msgid "Ya existe una cuenta con este email."
+msgstr "An account with this email already exists."
+
+msgid "Las contraseñas no coinciden."
+msgstr "Passwords do not match."
+
+msgid "La calificación debe ser entre 1 y 5."
+msgstr "Rating must be between 1 and 5."
+
+msgid "No se encontró el request en el contexto del serializer."
+msgstr "Request was not found in serializer context."
+
+msgid "Uno o más productos no existen."
+msgstr "One or more products do not exist."
+
+msgid "El producto no está disponible."
+msgstr "Product is not available."
+
+msgid "Stock insuficiente. Disponible: %(stock)s."
+msgstr "Insufficient stock. Available: %(stock)s."
+
+msgid "No se puede completar la compra por falta de inventario."
+msgstr "Cannot complete purchase due to insufficient inventory."
+
+msgid "Stock insuficiente durante la confirmacion de compra."
+msgstr "Insufficient stock during purchase confirmation."
+
+msgid "Pago rechazado por la pasarela seleccionada."
+msgstr "Payment rejected by the selected gateway."
+
+msgid "Debes enviar al menos un producto para procesar la compra."
+msgstr "You must send at least one product to process the purchase."
+
+msgid "Cada item debe incluir producto_id."
+msgstr "Each item must include a producto_id."
+
+msgid "La cantidad de cada producto debe ser mayor a cero."
+msgstr "The quantity of each product must be greater than zero."
+
+msgid "Debes enviar la direccion de entrega para procesar la compra."
+msgstr "You must provide a delivery address to process the purchase."
+
+msgid "Este pedido no tiene envio asociado."
+msgstr "This order has no associated shipment."
+
+msgid "Estado de envio invalido."
+msgstr "Invalid shipment status."
+
+msgid "fecha_entrega debe tener formato YYYY-MM-DD."
+msgstr "Delivery date must be in YYYY-MM-DD format."

@@ -7,6 +7,7 @@ from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import F
+from django.utils.translation import gettext_lazy as _
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from rest_framework.exceptions import ValidationError
@@ -116,12 +117,19 @@ class CheckoutService:
         payment_data = payment_data if isinstance(payment_data, dict) else {}
         payment_gateway = payment_gateway or get_payment_gateway()
 
+        if not payment_data.get('token'):
+            payment_data['token'] = (
+                payment_data.get('payment_intent_id') or
+                payment_data.get('payment_method_id') or
+                payment_data.get('client_secret')
+            )
+
         product_ids = [item['producto_id'] for item in normalized_items]
         productos = Producto.objects.select_for_update().filter(id__in=product_ids)
         productos_map = {str(producto.id): producto for producto in productos}
 
         if len(productos_map) != len(set(product_ids)):
-            raise ValidationError({'detail': 'Uno o más productos no existen.'})
+            raise ValidationError({'detail': _('Uno o más productos no existen.')})
 
         stock_errors = []
         for item in normalized_items:
@@ -131,7 +139,7 @@ class CheckoutService:
                     {
                         'producto_id': item['producto_id'],
                         'nombre': producto.nombre,
-                        'detail': 'El producto no está disponible.',
+                        'detail': _('El producto no está disponible.'),
                     }
                 )
                 continue
@@ -141,14 +149,14 @@ class CheckoutService:
                     {
                         'producto_id': item['producto_id'],
                         'nombre': producto.nombre,
-                        'detail': f'Stock insuficiente. Disponible: {producto.stock}.',
+                        'detail': _('Stock insuficiente. Disponible: %(stock)s.') % {'stock': producto.stock},
                     }
                 )
 
         if stock_errors:
             raise ValidationError(
                 {
-                    'detail': 'No se puede completar la compra por falta de inventario.',
+                    'detail': _('No se puede completar la compra por falta de inventario.'),
                     'items': stock_errors,
                 }
             )
@@ -163,7 +171,7 @@ class CheckoutService:
             token=payment_data.get('token'),
         )
         if payment_result.get('status') != 'approved':
-            raise ValidationError({'detail': 'Pago rechazado por la pasarela seleccionada.'})
+            raise ValidationError({'detail': _('Pago rechazado por la pasarela seleccionada.')})
 
         pedido = Pedido.objects.create(
             usuario=user,
@@ -189,12 +197,12 @@ class CheckoutService:
             if updated_rows == 0:
                 raise ValidationError(
                     {
-                        'detail': 'No se puede completar la compra por falta de inventario.',
+                        'detail': _('No se puede completar la compra por falta de inventario.'),
                         'items': [
                             {
                                 'producto_id': item['producto_id'],
                                 'nombre': producto.nombre,
-                                'detail': 'Stock insuficiente durante la confirmacion de compra.',
+                                'detail': _('Stock insuficiente durante la confirmacion de compra.'),
                             }
                         ],
                     }
@@ -218,7 +226,7 @@ class CheckoutService:
     @staticmethod
     def _validate_items(items) -> list[dict]:
         if not isinstance(items, list) or not items:
-            raise ValidationError({'detail': 'Debes enviar al menos un producto para procesar la compra.'})
+            raise ValidationError({'detail': _('Debes enviar al menos un producto para procesar la compra.')})
 
         normalized_items: list[dict] = []
         for item in items:
@@ -229,9 +237,9 @@ class CheckoutService:
                 cantidad = 0
 
             if not producto_id:
-                raise ValidationError({'detail': 'Cada item debe incluir producto_id.'})
+                raise ValidationError({'detail': _('Cada item debe incluir producto_id.')})
             if cantidad <= 0:
-                raise ValidationError({'detail': 'La cantidad de cada producto debe ser mayor a cero.'})
+                raise ValidationError({'detail': _('La cantidad de cada producto debe ser mayor a cero.')})
 
             normalized_items.append({'producto_id': producto_id, 'cantidad': cantidad})
 
@@ -242,7 +250,7 @@ class CheckoutService:
         envio_data = envio_data if isinstance(envio_data, dict) else {}
         direccion_entrega = str(envio_data.get('direccion_entrega', '')).strip()
         if not direccion_entrega:
-            raise ValidationError({'detail': 'Debes enviar la direccion de entrega para procesar la compra.'})
+            raise ValidationError({'detail': _('Debes enviar la direccion de entrega para procesar la compra.')})
         return direccion_entrega
 
     @staticmethod
@@ -280,7 +288,7 @@ class ShippingService:
     @transaction.atomic
     def update_shipping(*, pedido: Pedido, data: dict) -> dict:
         if not hasattr(pedido, 'envio'):
-            raise ValidationError({'detail': 'Este pedido no tiene envio asociado.'})
+            raise ValidationError({'detail': _('Este pedido no tiene envio asociado.')})
 
         envio = pedido.envio
         estado = data.get('estado')
@@ -292,7 +300,7 @@ class ShippingService:
         if estado is not None:
             estado = str(estado).strip().lower()
             if estado not in valid_states:
-                raise ValidationError({'detail': 'Estado de envio invalido.'})
+                raise ValidationError({'detail': _('Estado de envio invalido.')})
             if envio.estado != estado:
                 envio.estado = estado
                 changed.append('estado')
@@ -309,7 +317,7 @@ class ShippingService:
                 try:
                     parsed_date = date.fromisoformat(fecha_raw)
                 except ValueError as exc:
-                    raise ValidationError({'detail': 'fecha_entrega debe tener formato YYYY-MM-DD.'}) from exc
+                    raise ValidationError({'detail': _('fecha_entrega debe tener formato YYYY-MM-DD.')}) from exc
                 if envio.fecha_entrega != parsed_date:
                     envio.fecha_entrega = parsed_date
                     changed.append('fecha_entrega')

@@ -1,4 +1,8 @@
+import stripe
+from django.conf import settings
+
 from rest_framework import generics, permissions, status
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -105,7 +109,7 @@ class CheckoutPedidoView(APIView):
             items=request.data.get('items'),
             envio_data=request.data.get('envio') or {},
             perfil_data=request.data.get('perfil') or {},
-            payment_data=request.data.get('payment') or {},
+            payment_data=request.data.get('payment_data') or request.data.get('payment') or {},
         )
 
         return Response(
@@ -132,3 +136,24 @@ class PedidoDetalladoView(RetrieveAPIView):
         return Pedido.objects.filter(
             usuario=self.request.user
         ).prefetch_related('detalles__producto')
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def crear_payment_intent(request):
+    amount = request.data.get('amount')
+    if not amount:
+        return Response({'detail': 'Se requiere el monto.'}, status=400)
+    try:
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        intent = stripe.PaymentIntent.create(
+            amount=int(float(amount) * 100),
+            currency='usd',
+            automatic_payment_methods={'enabled': True},
+        )
+        return Response({
+            'client_secret': intent.client_secret,
+            'publishable_key': settings.STRIPE_PUBLISHABLE_KEY,
+        })
+    except Exception as e:
+        return Response({'detail': str(e)}, status=400)

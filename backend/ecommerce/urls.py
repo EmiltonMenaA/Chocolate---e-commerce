@@ -3,6 +3,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
     CheckoutPedidoView,
+    crear_payment_intent,
     CustomTokenObtainPairView,
     LogoutView,
     MeView,
@@ -12,6 +13,7 @@ from .views import (
     PanelProductoListView,
     ProductoDetailView,
     ProductoListCreateView,
+    productos_aliados,
     RegistroClienteView,
     RegistroTiendaView,
     ReseñaListCreateView,
@@ -31,7 +33,9 @@ urlpatterns = [
     # Products (public read / tienda write)
     path('productos/', ProductoListCreateView.as_view(), name='producto_list_create'),
     path('productos/<uuid:pk>/', ProductoDetailView.as_view(), name='producto_detail'),
+    path('productos-aliados/', productos_aliados, name='productos_aliados'),
     path('pedidos/mis/', MisPedidosListView.as_view(), name='mis_pedidos'),
+    path('pedidos/payment-intent/', crear_payment_intent, name='crear_payment_intent'),
     path('pedidos/checkout/', CheckoutPedidoView.as_view(), name='pedido_checkout'),
     # Panel (vendor-only)
     path('panel/productos/', PanelProductoListView.as_view(), name='panel_productos'),
