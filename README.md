@@ -1,217 +1,275 @@
-# Chocolate - E-commerce de skincare
+Déjame revisar el README actual y toda la estructura del proyecto para hacer uno completo y preciso.Tengo todo lo que necesito. Aquí está el README actualizado — pásaselo a tu asistente para que reemplace el archivo `README.md` completo:
 
-Aplicación full stack con frontend en React y backend en Django REST Framework.
+---
 
-Estado actual del proyecto:
+```markdown
+# Chocolate Beauty — E-commerce de Skincare
 
-- Autenticación JWT con roles cliente, tienda y admin
-- Registro separado para clientes y tiendas
-- Sección pública para clientes y panel separado para vendedores
-- Catálogo, detalle y home conectados a API real
-- Panel de tienda con crear, editar, activar y eliminar productos
-- Carga de imágenes de producto en backend
-- Dashboard de cliente conectado a pedidos reales
-- Comando de seed para poblar base de datos con tiendas, clientes, productos y pedidos
+Aplicación full stack especializada en productos de cuidado de la piel (skincare).
+Permite explorar un catálogo, gestionar el carrito, realizar pedidos con pago real
+mediante Stripe, y consultar productos de aliados externos.
 
 ## Stack técnico
 
-- Frontend: React 18, TypeScript, Vite, React Router, Tailwind CSS, Axios
-- Backend: Django 4.2, Django REST Framework, Simple JWT, CORS Headers
-- Base de datos: PostgreSQL 16
-- Infraestructura local: Docker Compose
+- **Frontend:** React 18, TypeScript, Vite, React Router, Tailwind CSS, i18next
+- **Backend:** Django 4.2, Django REST Framework, Simple JWT, CORS Headers, ReportLab, Stripe
+- **Base de datos:** PostgreSQL 16
+- **Infraestructura:** Docker Compose
+- **Pagos:** Stripe (modo prueba)
 
-## Guia rapida para el equipo
+## Arquitectura
 
-Esta es la forma recomendada para ejecutar el proyecto completo (frontend + backend + base de datos).
+El proyecto sigue una arquitectura cliente-servidor desacoplada con separación
+clara en capas:
+
+```
+Frontend React  →  API REST Django  →  Capa de Servicios  →  Modelos  →  PostgreSQL
+```
+
+### Capas del backend
+
+- **Vistas** (`view_modules/`): solo reciben la petición y delegan a servicios
+- **Servicios** (`services/`): toda la lógica de negocio
+  - `CheckoutService` — orquesta el proceso de compra con `@transaction.atomic`
+  - `InvoiceService` — genera facturas en PDF con ReportLab
+  - `NotificationService` — envía emails de confirmación
+  - `ShippingService` — gestiona el ciclo de vida del envío
+- **Inversión de dependencias — Pasarela de pagos:**
+  - `PaymentGateway` (interfaz abstracta en `services/payment/base.py`)
+  - `MockGateway` — para desarrollo y pruebas
+  - `StripeGateway` — integración real con Stripe API
+  - `factory.py` — selecciona el gateway según la variable `PAYMENT_GATEWAY` del entorno
+
+## Funcionalidades implementadas
+
+### Clientes
+- Registro e inicio de sesión con JWT
+- Catálogo público con búsqueda y filtros
+- Detalle de producto con reseñas y calificación promedio
+- Carrito de compras persistente
+- Checkout en 3 pasos: envío → pago → confirmación
+- Pago real con Stripe Elements (tarjeta de crédito/débito)
+- Descarga de factura PDF tras la compra
+- Dashboard con historial de pedidos
+
+### Tiendas
+- Registro como tienda
+- Panel de gestión de productos (crear, editar, activar, eliminar)
+- Panel de pedidos con gestión de envíos
+- Carga de imágenes de producto
+
+### Sistema
+- Roles: cliente, tienda, admin
+- Permisos personalizados por rol (`IsTienda`, `IsOwnerOrAdmin`)
+- Internacionalización en español e inglés (i18n)
+- Página de Productos Aliados consumiendo API externa
+- Servicio JSON público en `/api/productos/` para consumo de otros equipos
+- 340 líneas de tests unitarios
+
+## Guía rápida
 
 ### Requisitos
 
 - Docker Desktop encendido
-- Docker Compose v2 (comando `docker compose`)
+- Docker Compose v2
 - Git
 
-### 1) Clonar y entrar al proyecto
+### 1. Clonar el repositorio
 
 ```bash
-git clone <URL_DEL_REPOSITORIO>
-cd E-commerce\ Chocolate
+git clone https://github.com/EmiltonMenaA/Chocolate---e-commerce.git
+cd Chocolate---e-commerce
 ```
 
-### 2) Crear archivo de entorno para desarrollo
+### 2. Crear el archivo de entorno
 
 ```bash
+# Windows
 Copy-Item .env.example .env
+
+# Mac/Linux
+cp .env.example .env
 ```
 
-La configuracion de desarrollo (por ejemplo `DJANGO_DEBUG=True`) se maneja desde `.env`.
-No hace falta editar valores manualmente en codigo o README para cambiar entre dev/prod.
+Variables importantes en `.env`:
 
-### 3) Levantar todo con Docker
+| Variable | Descripción | Valor por defecto |
+|----------|-------------|-------------------|
+| `DJANGO_DEBUG` | Modo debug | `True` |
+| `PAYMENT_GATEWAY` | Gateway de pagos (`mock` o `stripe`) | `mock` |
+| `STRIPE_SECRET_KEY` | Clave secreta de Stripe | — |
+| `STRIPE_PUBLISHABLE_KEY` | Clave pública de Stripe | — |
+| `POSTGRES_DB` | Nombre de la base de datos | `chocolate_db` |
+
+### 3. Levantar con Docker
 
 ```bash
 docker compose up -d --build
 ```
 
-### 4) Verificar que todo esta arriba
-
-- Frontend: http://192.168.78.129:3000
-- http://localhost:3000/
-- Backend health: http://127.0.0.1:8000/api/health/
-
-Comando de verificacion de contenedores:
+### 4. Verificar que todo está corriendo
 
 ```bash
 docker compose ps
 ```
 
-### 5) Ver logs (opcional)
+- Frontend: http://localhost:3000
+- Backend: http://localhost:8000/api/health/
+
+### 5. Poblar la base de datos
 
 ```bash
-docker compose logs -f
+docker compose exec web python manage.py seed_data
 ```
 
-### 6) Detener servicios
+Con limpieza previa:
+
+```bash
+docker compose exec web python manage.py seed_data --reset
+```
+
+### 6. Detener servicios
 
 ```bash
 docker compose down
 ```
 
-## Ejecucion local sin Docker (opcional)
+## Usuarios de prueba
 
-Frontend
+| Rol | Email | Contraseña |
+|-----|-------|------------|
+| Tienda | tienda.centro@chocolat.com | 12345678 |
+| Tienda | tienda.norte@chocolat.com | 12345678 |
+| Cliente | cliente.demo@chocolat.com | 12345678 |
+| Cliente | cliente.demo2@chocolat.com | 12345678 |
 
-1. Instalar dependencias
+## Tarjetas de prueba Stripe
 
-	npm install
+| Resultado | Número | Fecha | CVV |
+|-----------|--------|-------|-----|
+| Aprobada | 4242 4242 4242 4242 | Cualquier fecha futura | Cualquier |
+|  Rechazada | 4000 0000 0000 0002 | Cualquier fecha futura | Cualquier |
+|  Requiere autenticación | 4000 0025 0000 3155 | Cualquier fecha futura | Cualquier |
 
-2. Ejecutar desarrollo
+## Endpoints de la API
 
-	npm run dev
+### Autenticación
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/api/auth/token/` | Obtener tokens JWT |
+| POST | `/api/auth/token/refresh/` | Renovar token |
+| POST | `/api/auth/registro/cliente/` | Registro de cliente |
+| POST | `/api/auth/registro/tienda/` | Registro de tienda |
+| GET | `/api/auth/me/` | Perfil del usuario autenticado |
+| POST | `/api/auth/logout/` | Cerrar sesión |
 
-Backend
+### Productos
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/productos/` | Catálogo público con campo `url` por producto |
+| POST | `/api/productos/` | Crear producto (tienda/admin) |
+| GET | `/api/productos/{id}/` | Detalle de producto |
+| PATCH | `/api/productos/{id}/` | Editar producto (owner/admin) |
+| DELETE | `/api/productos/{id}/` | Eliminar producto (owner/admin) |
+| GET | `/api/productos-aliados/` | Productos de aliados externos |
 
-1. Instalar dependencias
+### Pedidos
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/pedidos/mis/` | Historial de pedidos del cliente |
+| POST | `/api/pedidos/checkout/` | Procesar compra |
+| GET | `/api/pedidos/{id}/` | Detalle de pedido |
+| POST | `/api/pedidos/payment-intent/` | Crear intención de pago con Stripe |
 
-	pip install -r backend/requirements.txt
+### Panel de tienda
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/panel/productos/` | Productos de la tienda |
+| GET | `/api/panel/pedidos/` | Pedidos de la tienda |
+| PATCH | `/api/panel/pedidos/{id}/envio/` | Actualizar estado de envío |
 
-2. Migrar base de datos
+## Ejecución sin Docker (opcional)
 
-	python backend/manage.py migrate
+**Frontend:**
+```bash
+npm install
+npm run dev
+```
 
-3. Ejecutar servidor
+**Backend:**
+```bash
+pip install -r backend/requirements.txt
+python backend/manage.py migrate
+python backend/manage.py runserver
+```
 
-	python backend/manage.py runserver
+## Tests
 
-## Poblar la base de datos
+```bash
+# Backend
+docker compose exec web python manage.py test ecommerce.tests -v 1
 
-Comando de seed:
+# Frontend (build)
+npm run build
+```
 
-	docker compose exec web python manage.py seed_data
+## Estructura del proyecto
 
-Con limpieza previa de productos y pedidos:
+```
+├── backend/
+│   ├── config/                  # Configuración de Django
+│   ├── ecommerce/
+│   │   ├── models.py            # 11 modelos de dominio
+│   │   ├── serializers.py       # Serializers con validaciones
+│   │   ├── views.py             # Punto de entrada (delega a view_modules)
+│   │   ├── urls.py              # Rutas de la API
+│   │   ├── tests.py             # 340 líneas de tests unitarios
+│   │   ├── view_modules/        # Vistas separadas por dominio
+│   │   │   ├── auth.py
+│   │   │   ├── orders.py
+│   │   │   ├── products.py
+│   │   │   ├── reviews.py
+│   │   │   └── permissions.py
+│   │   └── services/            # Capa de servicios
+│   │       ├── services.py      # CheckoutService, InvoiceService, NotificationService
+│   │       └── payment/
+│   │           ├── base.py      # PaymentGateway (interfaz abstracta)
+│   │           ├── mock_gateway.py
+│   │           ├── stripe_gateway.py
+│   │           └── factory.py
+│   └── locale/                  # Traducciones i18n (es/en)
+├── src/
+│   ├── components/              # Header, Footer, Layout, ProtectedRoute
+│   ├── context/                 # AuthContext, CartContext
+│   ├── i18n/                    # Traducciones React (es.json, en.json)
+│   ├── pages/                   # Todas las páginas de la app
+│   └── services/                # api.ts
+├── docker-compose.yml
+├── .env.example
+└── README.md
+```
 
-	docker compose exec web python manage.py seed_data --reset
+## Solución de problemas
 
-Usuarios de prueba creados por seed:
+**Docker no inicia:**
+Asegúrate de que Docker Desktop esté encendido antes de correr `docker compose up`.
 
-- Tiendas
-  - tienda.centro@chocolat.com / 12345678
-  - tienda.norte@chocolat.com / 12345678
-
-- Clientes
-  - cliente.demo@chocolat.com / 12345678
-  - cliente.demo2@chocolat.com / 12345678
-
-## Endpoints principales
-
-Auth
-
-- POST /api/auth/token/
-- POST /api/auth/token/refresh/
-- POST /api/auth/registro/cliente/
-- POST /api/auth/registro/tienda/
-- GET /api/auth/me/
-- POST /api/auth/logout/
-
-Productos y pedidos
-
-- GET /api/productos/
-- POST /api/productos/ (tienda/admin)
-- GET /api/productos/{id}/
-- PATCH /api/productos/{id}/ (owner/admin)
-- DELETE /api/productos/{id}/ (owner/admin)
-- GET /api/panel/productos/ (tienda/admin)
-- GET /api/pedidos/mis/ (cliente autenticado)
-
-## Reglas funcionales implementadas
-
-- Solo usuarios autenticados pueden agregar al carrito
-- Checkout y payment requieren login de cliente
-- Solo tienda/admin puede gestionar productos
-- Catálogo público muestra productos activos
-
-## Scripts útiles
-
-- npm run dev
-- npm run build
-- npm run lint
-- npm run preview
-
-## Validacion
-
-Frontend:
-
-	npm run build
-
-Backend:
-
-	docker compose exec web python manage.py check
-
-	docker compose exec web python manage.py test ecommerce.tests -v 1
-
-## Solucion de problemas comunes
-
-1. Error de Docker API o daemon no encontrado
-
-- Asegura que Docker Desktop este iniciado antes de ejecutar `docker compose up -d --build`.
-
-2. Cambios en frontend que no se reflejan
-
-- Reinicia frontend:
-
+**Cambios en frontend que no se reflejan:**
 ```bash
 docker compose restart frontend
 ```
+Luego recarga con `Ctrl + Shift + R`.
 
-- Luego recarga el navegador con Ctrl+F5.
-
-3. Backend no disponible
-
-- Revisa contenedores:
-
-```bash
-docker compose ps
-```
-
-- Revisa logs del backend:
-
+**Backend no disponible:**
 ```bash
 docker compose logs web --tail 200
 ```
 
-## Estructura general
-
-- backend/config: configuración de Django
-- backend/ecommerce: modelos, serializers, vistas, urls y tests
-- backend/ecommerce/management/commands/seed_data.py: carga de datos inicial
-- src/components: layout, header, footer, rutas protegidas
-- src/context: contexto de autenticación y carrito
-- src/pages: home, catálogo, detalle, carrito, checkout, panel tienda, auth
-
-## Derechos de autor
-
-Desarrollado por:
+## Desarrollado por
 
 - Emilton Mena Acevedo
 - Mariana Hincapié Henao
 - Fabián Andrés Buriticá Cardozo
+
+Universidad EAFIT — Tópicos especiales en ingeniería de software
+```
