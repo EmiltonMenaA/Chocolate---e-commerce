@@ -131,15 +131,6 @@ docker compose exec web python manage.py seed_data --reset
 docker compose down
 ```
 
-## Usuarios de prueba
-
-| Rol | Email | Contraseña |
-|-----|-------|------------|
-| Tienda | tienda.centro@chocolat.com | 12345678 |
-| Tienda | tienda.norte@chocolat.com | 12345678 |
-| Cliente | cliente.demo@chocolat.com | 12345678 |
-| Cliente | cliente.demo2@chocolat.com | 12345678 |
-
 ## Tarjetas de prueba Stripe
 
 | Resultado | Número | Fecha | CVV |
@@ -170,20 +161,6 @@ docker compose down
 | DELETE | `/api/productos/{id}/` | Eliminar producto (owner/admin) |
 | GET | `/api/productos-aliados/` | Productos de aliados externos |
 
-### Pedidos
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/pedidos/mis/` | Historial de pedidos del cliente |
-| POST | `/api/pedidos/checkout/` | Procesar compra |
-| GET | `/api/pedidos/{id}/` | Detalle de pedido |
-| POST | `/api/pedidos/payment-intent/` | Crear intención de pago con Stripe |
-
-### Panel de tienda
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/panel/productos/` | Productos de la tienda |
-| GET | `/api/panel/pedidos/` | Pedidos de la tienda |
-| PATCH | `/api/panel/pedidos/{id}/envio/` | Actualizar estado de envío |
 
 ## Ejecución sin Docker (opcional)
 
@@ -269,4 +246,3 @@ docker compose logs web --tail 200
 - Fabián Andrés Buriticá Cardozo
 
 Universidad EAFIT — Tópicos especiales en ingeniería de software
-```
