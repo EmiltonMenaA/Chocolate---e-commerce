@@ -174,15 +174,16 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class ProductoSerializer(serializers.ModelSerializer):
     tienda_nombre = serializers.SerializerMethodField(read_only=True)
+    url = serializers.SerializerMethodField(read_only=True)
     categoria = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
     class Meta:
         model = Producto
         fields = (
             'id', 'nombre', 'descripcion', 'precio', 'stock',
-            'marca', 'categoria', 'imagen', 'activo', 'tienda', 'tienda_nombre',
+            'marca', 'categoria', 'imagen', 'activo', 'tienda', 'tienda_nombre', 'url',
         )
-        read_only_fields = ('id', 'tienda', 'tienda_nombre')
+        read_only_fields = ('id', 'tienda', 'tienda_nombre', 'url')
 
     def get_tienda_nombre(self, obj) -> str:
         if obj.tienda:
@@ -191,6 +192,12 @@ class ProductoSerializer(serializers.ModelSerializer):
             except PerfilUsuario.DoesNotExist:
                 return obj.tienda.get_full_name() or obj.tienda.email
         return ''
+
+    def get_url(self, obj) -> str:
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(f'/api/productos/{obj.id}/')
+        return f'/api/productos/{obj.id}/'
 
     def create(self, validated_data: "dict[str, Any]") -> "Producto":
         categoria = self._resolve_categoria(validated_data)
