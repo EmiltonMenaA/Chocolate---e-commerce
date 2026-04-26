@@ -1,6 +1,3 @@
-Déjame revisar el README actual y toda la estructura del proyecto para hacer uno completo y preciso.Tengo todo lo que necesito. Aquí está el README actualizado — pásaselo a tu asistente para que reemplace el archivo `README.md` completo:
-
----
 
 ```markdown
 # Chocolate Beauty — E-commerce de Skincare
