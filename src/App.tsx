@@ -22,6 +22,7 @@ import CustomerDashboard from './pages/CustomerDashboard'
 import VendorDashboard from './pages/VendorDashboard'
 import AddProduct from './pages/AddProduct'
 import VendorOrders from './pages/VendorOrders'
+import WeatherBeauty from './pages/WeatherBeauty'
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
               <Route path="/productos-aliados" element={<ProductosAliados />} />
               <Route path="/products/:id" element={<ProductDetail />} />
               <Route path="/cart" element={<ShoppingCart />} />
+              <Route path="/weather-beauty" element={<WeatherBeauty />} />
               <Route
                 path="/checkout"
                 element={

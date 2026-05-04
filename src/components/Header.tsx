@@ -113,6 +113,16 @@ export default function Header() {
             {t('nav.skinQuiz')}
           </Link>
           <Link 
+            to="/weather-beauty" 
+            className={`font-medium transition-colors ${
+              isActive('/weather-beauty') 
+                ? 'text-cafe' 
+                : 'text-cocoa-700 dark:text-slate-300 hover:text-cafe'
+            }`}
+          >
+             {t('nav.weatherBeauty')}
+          </Link>
+          <Link 
             to="/find-boutique" 
             className={`font-medium transition-colors ${
               isActive('/find-boutique') 
