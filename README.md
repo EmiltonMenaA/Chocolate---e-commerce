@@ -239,6 +239,50 @@ Luego recarga con `Ctrl + Shift + R`.
 docker compose logs web --tail 200
 ```
 
+
+```mermaid
+flowchart TD
+    EQ[Equipo siguiente] --> F
+    NAV[Navegador usuario] --> F
+    ADM[Panel admin / vendedor] --> F
+
+    subgraph F["Frontend — React + Vite + TypeScript"]
+        F1[Páginas: Catalog, Checkout, Cart, ProductosAliados]
+        F2[Contextos: AuthContext, CartContext]
+        F3[i18n: es.json, en.json]
+        F4[Stripe Elements: PaymentElement]
+    end
+
+    F -->|HTTP / JWT| API
+
+    subgraph API["API REST — Django 4.2 + DRF"]
+        A1[view_modules: auth, products, orders, reviews]
+        A2[Serializers: validación y campo url]
+        A3[Permisos: IsTienda, IsOwnerOrAdmin]
+    end
+
+    API --> SVC
+
+    subgraph SVC["Capa de servicios"]
+        S1[CheckoutService con transaction.atomic]
+        S2[InvoiceService con ReportLab]
+        S3[NotificationService con send_mail]
+        S4[PaymentGateway: MockGateway, StripeGateway, factory]
+    end
+
+    SVC --> MOD
+
+    subgraph MOD["Modelos de dominio — Django ORM"]
+        M1[Producto, Categoria, Carrito, Pedido]
+        M2[DetallePedido, Envio, PerfilUsuario, Reseña]
+    end
+
+    MOD --> DB[(PostgreSQL 16)]
+
+    S4 -->|Stripe SDK| STRIPE[Stripe API]
+    A1 -->|HTTP GET| FAKE[FakeStoreAPI]
+```
+
 ## Desarrollado por
 
 - Emilton Mena Acevedo
