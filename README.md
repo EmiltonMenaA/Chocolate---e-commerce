@@ -242,44 +242,45 @@ docker compose logs web --tail 200
 
 ```mermaid
 flowchart TD
-    A[Equipo siguiente\nConsume /api/productos/] --> F
-    B[Navegador\nUsuario final] --> F
-    C[Panel admin\nTienda / vendedor] --> F
+    EQ[Equipo siguiente] --> F
+    NAV[Navegador usuario] --> F
+    ADM[Panel admin / vendedor] --> F
 
     subgraph F["Frontend — React + Vite + TypeScript"]
-        F1[Páginas\nCatalog · Checkout · Cart · ProductosAliados]
-        F2[Contextos\nAuthContext · CartContext]
-        F3[i18n\nes.json · en.json]
-        F4[Stripe Elements\nPaymentElement]
+        F1[Páginas: Catalog, Checkout, Cart, ProductosAliados]
+        F2[Contextos: AuthContext, CartContext]
+        F3[i18n: es.json, en.json]
+        F4[Stripe Elements: PaymentElement]
     end
 
     F -->|HTTP / JWT| API
 
     subgraph API["API REST — Django 4.2 + DRF"]
-        A1[view_modules/\nauth · products · orders · reviews]
-        A2[Serializers\nValidación + campo url]
-        A3[Permisos\nIsTienda · IsOwnerOrAdmin]
+        A1[view_modules: auth, products, orders, reviews]
+        A2[Serializers: validación y campo url]
+        A3[Permisos: IsTienda, IsOwnerOrAdmin]
     end
 
-    API --> S
+    API --> SVC
 
-    subgraph S["Capa de servicios"]
-        S1[CheckoutService\n@transaction.atomic]
-        S2[InvoiceService\nPDF con ReportLab]
-        S3[NotificationService\nEmail confirmación]
-        S4[PaymentGateway\nMockGateway · StripeGateway · factory.py]
+    subgraph SVC["Capa de servicios"]
+        S1[CheckoutService con transaction.atomic]
+        S2[InvoiceService con ReportLab]
+        S3[NotificationService con send_mail]
+        S4[PaymentGateway: MockGateway, StripeGateway, factory]
     end
 
-    S --> M
+    SVC --> MOD
 
-    subgraph M["Modelos de dominio — Django ORM"]
-        M1[Producto · Categoria · Carrito · Pedido\nDetallePedido · Envio · PerfilUsuario · Reseña]
+    subgraph MOD["Modelos de dominio — Django ORM"]
+        M1[Producto, Categoria, Carrito, Pedido]
+        M2[DetallePedido, Envio, PerfilUsuario, Reseña]
     end
 
-    M --> DB[(PostgreSQL 16\nDocker volume)]
+    MOD --> DB[(PostgreSQL 16)]
 
-    S4 -->|Stripe SDK| EXT1[Stripe API\nPagos en modo prueba]
-    A1 -->|HTTP GET| EXT2[FakeStoreAPI\nProductos aliados]
+    S4 -->|Stripe SDK| STRIPE[Stripe API]
+    A1 -->|HTTP GET| FAKE[FakeStoreAPI]
 ```
 
 ## Desarrollado por
