@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.conf import settings
 from django.db import models
-from django.db.models import Avg
+from django.db.models import Avg, Sum, F, ExpressionWrapper, DecimalField
 
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
@@ -90,10 +90,15 @@ class Carrito(models.Model):
 
     @property
     def precio_total(self) -> Decimal:
-        total = Decimal('0.00')
-        for item in self.items.select_related('producto').all():
-            total += item.subtotal
-        return total
+        result = self.items.aggregate(
+            total=Sum(
+                ExpressionWrapper(
+                    F('cantidad') * F('producto__precio'),
+                    output_field=DecimalField(max_digits=10, decimal_places=2)
+                )
+            )
+        )
+        return result['total'] or Decimal('0.00')
 
     def agregar_producto(self, producto: Producto, cantidad: int = 1) -> None:
         if cantidad <= 0:
