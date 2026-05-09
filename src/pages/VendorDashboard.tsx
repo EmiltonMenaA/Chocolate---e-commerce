@@ -25,7 +25,8 @@ export default function VendorDashboard() {
       const { data } = await axios.get('/api/panel/productos/', {
         headers: { Authorization: `Bearer ${accessToken}` },
       })
-      setProductos(data)
+      const nextProductos = Array.isArray(data) ? data : data.results ?? []
+      setProductos(nextProductos)
     } catch {
       setError('No se pudieron cargar los productos.')
     } finally {
