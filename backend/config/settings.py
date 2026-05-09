@@ -48,6 +48,11 @@ _env_allowed_hosts = {
 ALLOWED_HOSTS = sorted(_default_allowed_hosts | _env_allowed_hosts)
 
 
+def _csv_env(name: str, default: list[str]) -> list[str]:
+    values = [value.strip() for value in os.getenv(name, '').split(',') if value.strip()]
+    return values or default
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -191,10 +196,27 @@ SIMPLE_JWT = {
 }
 
 # CORS
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-]
+CORS_ALLOWED_ORIGINS = sorted(
+    set(
+        _csv_env(
+            'CORS_ALLOWED_ORIGINS',
+            [
+                'http://localhost:3000',
+                'http://127.0.0.1:3000',
+                'http://34.28.115.234:3000',
+            ],
+        )
+    )
+)
+
+CSRF_TRUSTED_ORIGINS = _csv_env(
+    'CSRF_TRUSTED_ORIGINS',
+    [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'http://34.28.115.234:3000',
+    ],
+)
 CORS_ALLOW_CREDENTIALS = True
 
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')

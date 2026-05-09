@@ -113,6 +113,12 @@ docker compose ps
 - Frontend: http://localhost:3000
 - Backend: http://localhost:8000/api/health/
 
+### Producción
+
+- Frontend: http://34.28.115.234:3000
+- API: http://34.28.115.234:8000/api/
+- Servicio público de productos: http://34.28.115.234:8000/api/productos/
+
 ### 5. Poblar la base de datos
 
 ```bash
