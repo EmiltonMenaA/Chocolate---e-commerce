@@ -48,6 +48,10 @@ export default function Header() {
     localStorage.setItem('lang', newLang)
   }
 
+  const closeMobileMenu = () => {
+    setIsMenuOpen(false)
+  }
+
   return (
     <header className="sticky top-0 z-50 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-cocoa-100 dark:border-cocoa-800 px-6 lg:px-20 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-6">
@@ -226,19 +230,46 @@ export default function Header() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <nav className="lg:hidden mt-4 flex flex-col gap-4 pb-4">
-          <Link to="/products" className="text-cocoa-700 dark:text-slate-300 font-medium">
+          <Link
+            to="/products"
+            onClick={closeMobileMenu}
+            className="text-cocoa-700 dark:text-slate-300 font-medium"
+          >
             {t('nav.catalog')}
           </Link>
-          <Link to="/productos-aliados" className="text-cocoa-700 dark:text-slate-300 font-medium">
+          <Link
+            to="/productos-aliados"
+            onClick={closeMobileMenu}
+            className="text-cocoa-700 dark:text-slate-300 font-medium"
+          >
             {t('nav.allies')}
           </Link>
-          <Link to="/skin-quiz" className="text-cocoa-700 dark:text-slate-300 font-medium">
+          <Link
+            to="/skin-quiz"
+            onClick={closeMobileMenu}
+            className="text-cocoa-700 dark:text-slate-300 font-medium"
+          >
             {t('nav.skinQuiz')}
           </Link>
-          <Link to="/find-boutique" className="text-cocoa-700 dark:text-slate-300 font-medium">
+          <Link
+            to="/weather-beauty"
+            onClick={closeMobileMenu}
+            className="text-cocoa-700 dark:text-slate-300 font-medium"
+          >
+            {t('nav.weatherBeauty')}
+          </Link>
+          <Link
+            to="/find-boutique"
+            onClick={closeMobileMenu}
+            className="text-cocoa-700 dark:text-slate-300 font-medium"
+          >
             {t('nav.findBoutique')}
           </Link>
-          <Link to="/cart" className="text-cocoa-700 dark:text-slate-300 font-medium">
+          <Link
+            to="/cart"
+            onClick={closeMobileMenu}
+            className="text-cocoa-700 dark:text-slate-300 font-medium"
+          >
             {t('nav.cart')}
             {cartCount > 0 && (
               <span className="ml-2 inline-flex min-w-6 items-center justify-center rounded-full bg-emerald-500 px-2 py-0.5 text-xs font-bold text-white">
@@ -246,22 +277,50 @@ export default function Header() {
               </span>
             )}
           </Link>
-          <Link to="/login" className="text-cocoa-700 dark:text-slate-300 font-medium">
-            {t('nav.login')}
-          </Link>
           {!isAuthenticated && (
-            <Link to="/register" className="bg-cafe text-white px-4 py-2 rounded-lg font-medium">
+            <Link
+              to="/login"
+              onClick={closeMobileMenu}
+              className="text-cocoa-700 dark:text-slate-300 font-medium"
+            >
+              {t('nav.login')}
+            </Link>
+          )}
+          {!isAuthenticated && (
+            <Link
+              to="/register"
+              onClick={closeMobileMenu}
+              className="bg-cafe text-white px-4 py-2 rounded-lg font-medium"
+            >
               {t('nav.register')}
             </Link>
           )}
           {isAuthenticated && (
-            <button
-              onClick={handleLogout}
-              className="text-red-400 font-medium text-sm"
-            >
-              {t('nav.logout')}
-            </button>
+            <>
+              <Link
+                to="/dashboard"
+                onClick={closeMobileMenu}
+                className="text-cocoa-700 dark:text-slate-300 font-medium"
+              >
+                {t('nav.myAccount')}
+              </Link>
+              <button
+                onClick={async () => {
+                  closeMobileMenu()
+                  await handleLogout()
+                }}
+                className="text-red-400 font-medium text-sm text-left"
+              >
+                {t('nav.logout')}
+              </button>
+            </>
           )}
+          <button
+            onClick={toggleLang}
+            className="w-fit text-xs font-medium px-3 py-1 rounded-full border border-cocoa-300 dark:border-cocoa-600 text-cocoa-700 dark:text-slate-300"
+          >
+            {i18n.language === 'es' ? 'EN' : 'ES'}
+          </button>
         </nav>
       )}
     </header>
