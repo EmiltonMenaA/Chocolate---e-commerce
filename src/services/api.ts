@@ -14,6 +14,25 @@ export async function getBackendHealth(): Promise<HealthResponse> {
   return response.json() as Promise<HealthResponse>
 }
 
+type ViteImportMeta = ImportMeta & {
+  env?: {
+    VITE_API_URL?: string
+  }
+}
+
+export function getBackendOrigin(): string {
+  const configuredOrigin = (import.meta as ViteImportMeta).env?.VITE_API_URL?.trim()
+  if (configuredOrigin) {
+    return configuredOrigin.replace(/\/$/, '')
+  }
+
+  if (typeof window === 'undefined') {
+    return 'http://localhost:8000'
+  }
+
+  return `${window.location.protocol}//${window.location.hostname}:8000`
+}
+
 export function normalizeMediaUrl(mediaUrl: string | null): string | null {
   if (!mediaUrl) {
     return null
@@ -23,7 +42,8 @@ export function normalizeMediaUrl(mediaUrl: string | null): string | null {
     return mediaUrl
   }
 
-  return mediaUrl.startsWith('/') ? mediaUrl : `/${mediaUrl}`
+  const path = mediaUrl.startsWith('/') ? mediaUrl : `/${mediaUrl}`
+  return `${getBackendOrigin()}${path}`
 }
 
 // ── Tipos ──────────────────────────────────────────────

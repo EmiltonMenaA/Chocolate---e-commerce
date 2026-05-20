@@ -47,7 +47,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      VITE_API_URL: http://web:8000
+      VITE_PROXY_TARGET: http://web:8000
     depends_on:
       - web
 volumes:
