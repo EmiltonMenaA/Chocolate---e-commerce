@@ -1,6 +1,9 @@
 from decimal import Decimal
+from io import BytesIO
+from pathlib import Path
 
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 
 from ecommerce.models import Categoria, DetallePedido, Pedido, PerfilUsuario, Producto
@@ -152,7 +155,7 @@ class Command(BaseCommand):
         for i, data in enumerate(productos_seed):
             tienda = tiendas[i % len(tiendas)]
             categoria, _ = Categoria.objects.get_or_create(nombre=data['categoria'])
-            producto, _ = Producto.objects.get_or_create(
+            producto, created = Producto.objects.get_or_create(
                 nombre=data['nombre'],
                 tienda=tienda,
                 defaults={
@@ -164,6 +167,35 @@ class Command(BaseCommand):
                     'activo': True,
                 },
             )
+            
+            # Generar imagen placeholder si no tiene imagen
+            if not producto.imagen:
+                try:
+                    from PIL import Image, ImageDraw
+                    
+                    # Crear imagen
+                    img = Image.new('RGB', (400, 400), color=(139, 69, 19))  # Marrón chocolate
+                    draw = ImageDraw.Draw(img)
+                    
+                    # Agregar texto
+                    text = data['nombre'][:20]
+                    try:
+                        draw.text((200, 190), text, fill=(255, 255, 255), anchor='mm')
+                    except:
+                        draw.text((200, 190), text, fill=(255, 255, 255))
+                    
+                    # Guardar en memoria
+                    img_io = BytesIO()
+                    img.save(img_io, format='PNG')
+                    img_io.seek(0)
+                    
+                    # Asignar al producto
+                    filename = f'{data["nombre"].lower().replace(" ", "_")[:30]}.png'
+                    producto.imagen.save(filename, ContentFile(img_io.getvalue()), save=True)
+                    self.stdout.write(f'  ✓ Imagen creada para {data["nombre"]}')
+                except Exception as e:
+                    self.stdout.write(self.style.WARNING(f'  ⚠ No se pudo crear imagen para {data["nombre"]}: {e}'))
+            
             if not producto.activo:
                 producto.activo = True
                 producto.save(update_fields=['activo'])

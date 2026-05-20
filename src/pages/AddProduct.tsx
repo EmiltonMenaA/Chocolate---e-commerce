@@ -89,14 +89,12 @@ export default function AddProduct() {
         await axios.patch(`/api/productos/${id}/`, body, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'multipart/form-data',
           },
         })
       } else {
         await axios.post('/api/productos/', body, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'multipart/form-data',
           },
         })
       }
