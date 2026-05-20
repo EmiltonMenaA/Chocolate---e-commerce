@@ -232,8 +232,16 @@ class ProductoSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['categoria'] = instance.categoria.nombre if instance.categoria else ''
-        # Return media as relative path so frontend proxy resolves it correctly in Docker.
-        data['imagen'] = instance.imagen.url if instance.imagen else None
+        
+        # Return absolute URL for media files so frontend can access from any location
+        if instance.imagen:
+            request = self.context.get('request')
+            if request:
+                data['imagen'] = request.build_absolute_uri(instance.imagen.url)
+            else:
+                data['imagen'] = instance.imagen.url
+        else:
+            data['imagen'] = None
         return data
 
 
@@ -268,7 +276,12 @@ class PedidoResumenSerializer(serializers.ModelSerializer):
         )
 
     def get_factura_pdf_url(self, obj: Pedido) -> str | None:
-        return obj.factura_pdf.url if obj.factura_pdf else None
+        if obj.factura_pdf:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.factura_pdf.url)
+            return obj.factura_pdf.url
+        return None
 
     def get_envio(self, obj: Pedido) -> dict | None:
         envio = getattr(obj, 'envio', None)
@@ -372,6 +385,9 @@ class DetallePedidoSerializer(serializers.ModelSerializer):
 
     def get_producto_imagen(self, obj) -> str | None:
         if obj.producto.imagen:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.producto.imagen.url)
             return obj.producto.imagen.url
         return None
 
