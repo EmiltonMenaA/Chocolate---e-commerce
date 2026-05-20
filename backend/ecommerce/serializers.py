@@ -15,6 +15,16 @@ from .models import Categoria, DetallePedido, Pedido, PerfilUsuario, Producto, R
 User = get_user_model()
 
 
+def _file_url_if_exists(file_field) -> str | None:
+    if not file_field:
+        return None
+    storage = getattr(file_field, 'storage', None)
+    name = getattr(file_field, 'name', '')
+    if storage is not None and name and not storage.exists(name):
+        return None
+    return file_field.url
+
+
 def _validate_password_strength(value: str) -> str:
     if not re.search(r'[A-Z]', value):
         raise serializers.ValidationError(_('La contraseña debe contener al menos una mayúscula.'))
@@ -234,10 +244,7 @@ class ProductoSerializer(serializers.ModelSerializer):
         data['categoria'] = instance.categoria.nombre if instance.categoria else ''
 
         # Keep media paths relative so the browser resolves them through the public host.
-        if instance.imagen:
-            data['imagen'] = instance.imagen.url
-        else:
-            data['imagen'] = None
+        data['imagen'] = _file_url_if_exists(instance.imagen)
         return data
 
 
@@ -272,9 +279,7 @@ class PedidoResumenSerializer(serializers.ModelSerializer):
         )
 
     def get_factura_pdf_url(self, obj: Pedido) -> str | None:
-        if obj.factura_pdf:
-            return obj.factura_pdf.url
-        return None
+        return _file_url_if_exists(obj.factura_pdf)
 
     def get_envio(self, obj: Pedido) -> dict | None:
         envio = getattr(obj, 'envio', None)
@@ -377,9 +382,7 @@ class DetallePedidoSerializer(serializers.ModelSerializer):
         fields = ('producto_id', 'producto_nombre', 'producto_imagen', 'cantidad', 'precio_unitario', 'subtotal')
 
     def get_producto_imagen(self, obj) -> str | None:
-        if obj.producto.imagen:
-            return obj.producto.imagen.url
-        return None
+        return _file_url_if_exists(obj.producto.imagen)
 
 
 class PedidoDetalladoSerializer(serializers.ModelSerializer):
