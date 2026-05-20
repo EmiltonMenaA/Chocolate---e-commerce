@@ -14,6 +14,18 @@ export async function getBackendHealth(): Promise<HealthResponse> {
   return response.json() as Promise<HealthResponse>
 }
 
+export function normalizeMediaUrl(mediaUrl: string | null): string | null {
+  if (!mediaUrl) {
+    return null
+  }
+
+  if (mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://') || mediaUrl.startsWith('data:')) {
+    return mediaUrl
+  }
+
+  return mediaUrl.startsWith('/') ? mediaUrl : `/${mediaUrl}`
+}
+
 // ── Tipos ──────────────────────────────────────────────
 export type Reseña = {
   id: string

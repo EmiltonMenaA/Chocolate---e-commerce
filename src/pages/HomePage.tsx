@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { useTranslation } from 'react-i18next'
-import { getBackendHealth } from '../services/api'
+import { getBackendHealth, normalizeMediaUrl } from '../services/api'
 
 type Producto = {
   id: string
@@ -125,7 +125,7 @@ export default function HomePage() {
                 className="bg-white dark:bg-cocoa-800 rounded-xl overflow-hidden hover:shadow-lg transition-shadow"
               >
                 <img 
-                  src={product.imagen || '/images/products/default-product.png'} 
+                  src={normalizeMediaUrl(product.imagen) || '/images/products/default-product.png'} 
                   alt={product.nombre}
                   className="w-full h-48 object-cover"
                 />

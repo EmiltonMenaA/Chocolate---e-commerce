@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import CartFeedbackToast from '../components/CartFeedbackToast'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
+import { normalizeMediaUrl } from '../services/api'
 
 type Producto = {
   id: string
@@ -130,7 +131,7 @@ export default function ProductCatalog() {
       id: product.id,
       name: product.nombre,
       price: Number(product.precio),
-      image: product.imagen || '/images/products/default-product.png',
+      image: normalizeMediaUrl(product.imagen) || '/images/products/default-product.png',
       quantity: 1,
     })
     setAddedProductId(productId)
@@ -254,7 +255,7 @@ export default function ProductCatalog() {
                 >
                   <div className="relative overflow-hidden h-48 bg-cocoa-100">
                     <img
-                      src={product.imagen || '/images/products/default-product.png'}
+                      src={normalizeMediaUrl(product.imagen) || '/images/products/default-product.png'}
                       alt={product.nombre}
                       className="w-full h-full object-cover hover:scale-105 transition-transform"
                     />

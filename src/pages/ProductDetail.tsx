@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
-import { getReseñas, crearReseña, type Reseña } from '../services/api'
+import { getReseñas, crearReseña, normalizeMediaUrl, type Reseña } from '../services/api'
 
 import CartFeedbackToast from '../components/CartFeedbackToast'
 import { useCart } from '../context/CartContext'
@@ -109,7 +109,7 @@ const handleEnviarReseña = async () => {
       id: product.id,
       name: product.nombre,
       price: Number(product.precio),
-      image: product.imagen || '/images/products/default-product.png',
+      image: normalizeMediaUrl(product.imagen) || '/images/products/default-product.png',
       quantity,
     })
     setShowCartFeedback(true)
@@ -150,7 +150,7 @@ const handleEnviarReseña = async () => {
           {/* Product Image */}
           <div className="h-96 lg:h-[600px] rounded-xl overflow-hidden bg-cocoa-100">
             <img
-              src={product.imagen || '/images/products/default-product.png'}
+              src={normalizeMediaUrl(product.imagen) || '/images/products/default-product.png'}
               alt={product.nombre}
               className="w-full h-full object-cover"
             />
