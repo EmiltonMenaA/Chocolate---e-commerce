@@ -36,6 +36,8 @@ _default_allowed_hosts = {
     'chocolate_web',
     'frontend',
     'chocolate_frontend',
+    '34.28.115.234',  # GCP instance
+    '10.128.0.2',     # GCP internal IP
 }
 
 _env_allowed_hosts = {
