@@ -14,10 +14,13 @@ export default defineConfig({
         target: apiTarget,
         changeOrigin: true,
       },
-        '/media': {
-          target: apiTarget,
-          changeOrigin: true,
-        },
+      '/media': {
+        target: apiTarget,
+        changeOrigin: true,
+      },
     },
-  }
+  },
+  define: {
+    __API_URL__: JSON.stringify(apiTarget),
+  },
 })
